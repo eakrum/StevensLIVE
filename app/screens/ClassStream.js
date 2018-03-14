@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { SafeAreaView, KeyboardAvoidingView ,TextInput  ,AppRegistry, Picker, StyleSheet, Text, TouchableHighlight, View, Image, ImageBackground, ListView, Platform, Dimensions, TouchableOpacity} from 'react-native';
 import SocketIOClient from 'socket.io-client';
 import { RTCPeerConnection, RTCMediaStream, RTCIceCandidate, RTCSessionDescription, RTCView, MediaStreamTrack, getUserMedia, } from 'react-native-webrtc';
+//import FBSDK, { LoginManager, LoginButton } from 'react-native-fbsdk';
 import { StackNavigator, TabNavigator, NavigationActions } from 'react-navigation';
 import { SocialIcon, Icon, Button, Input } from 'react-native-elements';
 import InCallManager from 'react-native-incall-manager';
@@ -15,10 +16,11 @@ const configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
 
 let container;
 let localStream;
-
+let ableSwitchCam;
 const instructor = "mrr2kRxJhmUPWXxrmEtdx8On2GH2";
 
 
+   
   /*-------------------------------
       ALL WEB RTC FUNCTIONALITY
   ---------------------------------*/
@@ -72,7 +74,7 @@ const instructor = "mrr2kRxJhmUPWXxrmEtdx8On2GH2";
               minHeight: 360,
               minFrameRate: 30,
             },
-            facingMode: (!isFront ? "user" : "environment"),
+            facingMode: (isFront ? "user" : "environment"),
             optional: (videoSourceId ? [{sourceId: videoSourceId}] : []),
           }
         }, function (stream) {
@@ -280,9 +282,6 @@ const instructor = "mrr2kRxJhmUPWXxrmEtdx8On2GH2";
           }, logError);
         }
       }
-
- 
-      
      
     
 export default class ClassStream extends Component { 
@@ -313,51 +312,39 @@ export default class ClassStream extends Component {
   }
  
 
+
   static navigationOptions = {
     title: 'ClassStream'
   }
 
+  switchCameraButton(){
+    if (instructor == firebase.auth().currentUser.uid){
+      ableSwitchCam = true;
+    } else {
+      ableSwitchCam = false;
+    }
+  }
     render() {
-      
-     if(instructor == firebase.auth().currentUser.uid) {
-     
+      this.switchCameraButton();
+      const camSwitchButton = <Button outline rounded large text="Switch Cam" 
+        icon={<Icon name='tv' size={15} color='white'/>} />
+
        return (
-      
-          <View >
-            <Button 
-         text = 'im a professor'/>
+         
         
+          <View >
+            {ableSwitchCam ? camSwitchButton : null}
+              <RTCView streamURL={localStream} style={styles.remoteView}/>
+
              {
           mapHash(this.state.remoteList, function(remote, index) {
             return <RTCView key={index} streamURL={remote} style={styles.remoteView}/>})
           }
-
-        
-
             
           </View>
        );
-      }
-
-      else {
-
-        return (
-           <View >
-             <Button 
-              text = 'im a student'/>
-         
-              {
-           mapHash(this.state.remoteList, function(remote, index) {
-             return <RTCView key={index} streamURL={remote} style={styles.remoteView}/>})
-           } 
-           </View>
-        );
-
-      }
     }
 }
-
-
 
 const styles = StyleSheet.create({
   background: {

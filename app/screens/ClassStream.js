@@ -247,7 +247,15 @@ const instructor = "Xy2Mzu9kM9cJrWxfqYIi1cG52Dk1";
         exchange(data);
       });
       socket.on('leave', function(socketId){
-        leave(socketId);
+        const pc = pcPeers[socketId];
+        const viewIndex = pc.viewIndex;
+        pc.close();
+        delete pcPeers[socketId];
+      
+        const remoteList = container.state.remoteList;
+        delete remoteList[socketId]
+        container.setState({ remoteList: remoteList });
+        container.setState({info: 'One peer leave!'})
       });
     
       socket.on('connect', function(data) {
@@ -299,14 +307,26 @@ export default class ClassStream extends Component {
 
   }
 
+  streamConfig = () => {
+    join(this.state.roomID);
+    if (instructor == firebase.auth().currentUser.uid){
+    {getLocalStream(true, function(stream) {
+      localStream = stream;
+      container.setState({selfViewSrc: stream.toURL()});
+      })
+    }
+    }
+    InCallManager.start({media: 'audio'}); // audio/video, default: audio
+    InCallManager.setForceSpeakerphoneOn( true );
+
+  }
+
   
 
   componentDidMount(){
    
     container = this;
-    join(this.state.roomID);
-    InCallManager.start({media: 'audio'}); // audio/video, default: audio
-    InCallManager.setForceSpeakerphoneOn( true );
+    this.streamConfig();
     
   }
  
@@ -329,17 +349,19 @@ export default class ClassStream extends Component {
         icon={<Icon name='tv' size={15} color='white'/>} />
 
        return (
-         
-        
+        <View> 
+        {ableSwitchCam ? camSwitchButton : null}
           <View >
-            {ableSwitchCam ? camSwitchButton : null}
-              <RTCView streamURL={localStream} style={styles.remoteView}/>
+            
+              <RTCView streamURL={this.state.selfViewSrc} style={styles.selfView}/>
+
 
              {
           mapHash(this.state.remoteList, function(remote, index) {
             return <RTCView key={index} streamURL={remote} style={styles.remoteView}/>})
           }
             
+          </View>
           </View>
        );
     }
@@ -378,11 +400,9 @@ const styles = StyleSheet.create({
 
   },
   selfView: {
-    width: 200,
-    height: 150,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
+    position: "absolute",
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height,
   },
   remoteView: {
     position: "absolute",

@@ -104,20 +104,20 @@ export default class Name extends React.Component {
                     />
 
                     <Button 
-                    title = 'Next'
+                    text = 'Next'
                     raised
                     backgroundColor = '#FFF'
                     small
-                    titleStyle = {{fontWeight: 'bold'}}
+                    textStyle = {{fontWeight: 'bold'}}
                     onPress = {this.next}
                     buttonStyle={styles.loginButton} /> 
 
                     <Button 
-                    title = 'Back'
+                    text = 'Back'
                     clear
                     //backgroundColor = '#3BA9FF'
                     small
-                    titleStyle = {{fontWeight: 'bold', color: '#909497', fontSize: 15}}
+                    textStyle = {{fontWeight: 'bold', color: '#909497', fontSize: 15}}
                     onPress = {this.back} />
 
                 </View>
@@ -213,13 +213,12 @@ const styles = StyleSheet.create({
 
     
     loginButton: {
-      //justifyContent: 'flex-start',
-      backgroundColor: "#349186",
+      backgroundColor: "#3BA9FF",
       width: 300,
       height: 45,
       borderColor: "transparent",
       borderWidth: 0,
-
+ 
     }, 
     socialButton: {
       alignItems: 'center',

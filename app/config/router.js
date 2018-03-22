@@ -57,6 +57,7 @@ export const Tabs = TabNavigator({
     screen: Me,
     navigationOptions: {
       tabBarIcon: ({ tintColor }) => <Icon name="user" size={25} type = 'feather' color={tintColor} />, 
+      header: null
       }
      
   }
@@ -64,7 +65,7 @@ export const Tabs = TabNavigator({
 },
 {
   tabBarOptions:{
-    activeTintColor: '#3799e5',
+    activeTintColor: "#3BA9FF",
     inactiveTintColor: '#FFF',
     style: {
       backgroundColor: '#43474f'
@@ -79,7 +80,18 @@ export const SettingsStack = StackNavigator({
     screen: Settings,
     navigationOptions: {
       title: 'Settings',
-    }
+      headerStyle: {
+        backgroundColor: '#3BA9FF',
+        height: 35,
+
+      },
+      headerTitleStyle: {
+        fontWeight: 'bold',                                                                                   
+        color: '#FFF'
+
+      }
+      
+    },
   },
 
 });
@@ -102,14 +114,12 @@ export const Root = StackNavigator({
       
     },
     ClassStream: {
-        screen: ClassStream
+      screen: ClassStream
     },
-    SettingsStack: {
-      screen: SettingsStack
-
+    Settings: {
+      screen: SettingsStack,
     }
-  }, 
-  {
-    mode: 'modal',
-    headerMode: 'none',
-  });
+  },
+{
+  headerMode: 'none',
+});

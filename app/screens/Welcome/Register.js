@@ -114,7 +114,7 @@ export default class Register extends Component {
 
 
                    <Button 
-                   text = 'Register'
+                   text = 'Next'
                    raised
                    backgroundColor = '#FFF'
                    small

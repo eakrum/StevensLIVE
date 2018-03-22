@@ -45,13 +45,15 @@ class Settings extends Component {
         onChangeText={(text) => this.setState({bio: text})} 
         value = {this.state.bio}/>
         <Button 
-          title="Done"
+          text="Done"
           raised
           large
-          titleStyle={{ fontWeight: "bold" }}
+          textStyle={{ fontWeight: "bold" }}
           buttonStyle={styles.loginButton} 
           onPress = {this.done}
           />
+
+      
       </View>
       </ImageBackground>
     );
@@ -76,8 +78,7 @@ const styles = StyleSheet.create({
   },
   
   loginButton: {
-    //justifyContent: 'flex-start',
-    backgroundColor: "#349186",
+    backgroundColor: "#3BA9FF",
     width: 300,
     height: 45,
     borderColor: "transparent",

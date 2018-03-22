@@ -17,7 +17,7 @@ const configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
 let container;
 let localStream;
 let ableSwitchCam;
-const instructor = "mrr2kRxJhmUPWXxrmEtdx8On2GH2";
+const instructor = "Xy2Mzu9kM9cJrWxfqYIi1cG52Dk1";
 
 
    

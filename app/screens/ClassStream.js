@@ -295,7 +295,6 @@ export default class ClassStream extends Component {
       roomID: this.props.navigation.state.params.roomID,
       selfViewSrc: this.props.navigation.state.params.selfViewSrc,
       remoteList: this.props.navigation.state.params.remoteList,
-      broadcast: this.props.navigation.state.params.broadcast,
     }
 
   }

@@ -3,12 +3,12 @@ import {  StatusBar, SafeAreaView, KeyboardAvoidingView ,AppRegistry, Picker, St
 import { RTCPeerConnection, RTCMediaStream, RTCIceCandidate, RTCSessionDescription, RTCView, MediaStreamTrack, getUserMedia, } from 'react-native-webrtc';
 import { StackNavigator, TabNavigator, NavigationActions } from 'react-navigation';
 import { SocialIcon, Icon, Button, Input} from 'react-native-elements';
-import {firebase} from '../../services/firebase';
+import {firebase} from '../../../services/firebase';
 
 
 
 
-const logo = require('../../images/one.jpg')
+const logo = require('../../../images/one.jpg')
 
 export default class Login extends Component { 
     constructor(props) {

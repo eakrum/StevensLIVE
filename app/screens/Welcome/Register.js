@@ -3,10 +3,10 @@ import {  StatusBar, SafeAreaView, KeyboardAvoidingView ,AppRegistry, Picker, St
 import { RTCPeerConnection, RTCMediaStream, RTCIceCandidate, RTCSessionDescription, RTCView, MediaStreamTrack, getUserMedia, } from 'react-native-webrtc';
 import { StackNavigator, TabNavigator, NavigationActions } from 'react-navigation';
 import { SocialIcon, Icon, Button, Input} from 'react-native-elements';
-import {firebase} from '../../services/firebase';
+import {firebase} from '../../../services/firebase';
 
 
-const logo = require('../../images/one.jpg')
+const logo = require('../../../images/one.jpg')
 
 export default class Register extends Component { 
     constructor(props) {
@@ -37,7 +37,7 @@ export default class Register extends Component {
 
          else if (this.state.password === this.state.password2){
              firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password);
-             this.props.navigation.navigate('ClassList');
+             this.props.navigation.navigate('Name');
          }
          
      } 

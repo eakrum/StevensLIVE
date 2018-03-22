@@ -40,20 +40,11 @@ export default class ClassList extends Component {
           textRoomData: [],
           textRoomValue: '',
           PickerValue: '',
-          broadcast: firebase.auth().currentUser.uid
         }
     
       }
 
-      
-      userTest = () => {
-        if (this.state.broadcast === instructor) {
-          alert(this.state.broadcast);
-        }
-        else {
-          alert(this.state.broadcast);
-        }
-      }
+     
       selectClass = () => {
         this.props.navigation.navigate('ClassStream',  
         { roomID: this.state.roomID, 
@@ -62,7 +53,6 @@ export default class ClassList extends Component {
           isFront: this.state.isFront, 
           info: this.state.info, 
           selfViewSrc: this.state.selfViewSrc,
-          broadcast: this.state.broadcast,
           status: this.state.status} );
 
       }

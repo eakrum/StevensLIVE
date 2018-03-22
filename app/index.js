@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { DefaultNav} from './config/router';
+import { DefaultNav, Root} from './config/router';
 
 class App extends Component {
   render() {
-    return <DefaultNav/>;
+    return <Root/>;
   }
 }
 

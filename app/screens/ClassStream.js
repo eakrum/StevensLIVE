@@ -247,15 +247,7 @@ const instructor = "Xy2Mzu9kM9cJrWxfqYIi1cG52Dk1";
         exchange(data);
       });
       socket.on('leave', function(socketId){
-        const pc = pcPeers[socketId];
-        const viewIndex = pc.viewIndex;
-        pc.close();
-        delete pcPeers[socketId];
-      
-        const remoteList = container.state.remoteList;
-        delete remoteList[socketId]
-        container.setState({ remoteList: remoteList });
-        container.setState({info: 'One peer leave!'})
+        leave(socketId);
       });
     
       socket.on('connect', function(data) {
@@ -343,6 +335,10 @@ export default class ClassStream extends Component {
       ableSwitchCam = false;
     }
   }
+
+  backAlert = () => {
+    alert('Back');
+  }
     render() {
       this.switchCameraButton();
       const camSwitchButton = <Button outline rounded large text="Switch Cam" 
@@ -350,6 +346,8 @@ export default class ClassStream extends Component {
 
        return (
         <View> 
+        <Icon iconStyle = {styles.edit} name="gear" size={80} type = 'evilicon' color= '#FFF' onPress = {this.backAlert}/>
+
         {ableSwitchCam ? camSwitchButton : null}
           <View >
             

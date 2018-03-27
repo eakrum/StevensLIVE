@@ -74,6 +74,7 @@ function join(roomID) {
         }
       }, function (stream) {
         console.log('getUserMedia success', stream);
+        console.log('HELLO: ', stream._tracks[1]);
         callback(stream);
       }, logError);
       
@@ -233,7 +234,10 @@ function join(roomID) {
       console.log('connect');
       getLocalStream(true, function(stream) {
         localStream = stream;
+        console.log('LOCALSTREAM: ', localStream._tracks);
         mySelf = stream.toURL();
+        console.log('myself video', mySelf._tracks)
+        console.log('Myself: ', mySelf);
         //container.setState({selfViewSrc: stream.toURL()});
         container.setState({status: 'ready', info: 'Please enter or create room ID'});
       });
@@ -263,9 +267,14 @@ function join(roomID) {
       }
     }
 
+    function cameraSwitch(){
+      localStream.getVideoTracks().forEach(track => { track._switchCamera();});
+    }
      
     
 export default class ClassStream extends Component { 
+
+ 
   
 
   constructor(props){
@@ -283,6 +292,9 @@ export default class ClassStream extends Component {
     }
 
   }
+  switcher = () => {
+    cameraSwitch(); 
+  }
 
   streamConfig = () => {
     join(this.state.roomID);
@@ -296,7 +308,7 @@ export default class ClassStream extends Component {
   componentDidMount(){
    
     console.log('i am: ', mySelf);
-   // console.log('u are:' ,localStream)
+    console.log('u are:' ,localStream)
 
     container = this;
    this.streamConfig();
@@ -323,7 +335,7 @@ export default class ClassStream extends Component {
   }
     render() {
       this.switchCameraButton();
-      const camSwitchButton = <Button outline rounded large text="Switch Cam" 
+      const camSwitchButton = <Button outline rounded large text="Switch Cam" onPress={this.switcher}
         icon={<Icon name='tv' size={15} color='white'/>} />
 
        return (

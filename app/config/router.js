@@ -39,6 +39,35 @@ export const WelcomeStack = StackNavigator({
 
 })
 
+export const Profile = StackNavigator({
+  Me: {
+    screen: Me,
+    navigationOptions: {
+      tabBarIcon: ({ tintColor }) => <Icon name="user" size={25} type = 'feather' color={tintColor} />, 
+      header: null
+      }
+     
+  },
+  Settings: {
+    screen: Settings,
+    navigationOptions: {
+      title: 'Settings',
+      headerStyle: {
+        backgroundColor: '#3BA9FF',
+        height: 35,
+
+      },
+      headerTitleStyle: {
+        fontWeight: 'bold',                                                                                   
+        color: '#FFF'
+
+      }
+      
+    },
+  },
+
+});
+
 export const Tabs = TabNavigator({
  
 
@@ -53,8 +82,8 @@ export const Tabs = TabNavigator({
       }
   },
 
-  Me: {
-    screen: Me,
+  Profile: {
+    screen: Profile,
     navigationOptions: {
       tabBarIcon: ({ tintColor }) => <Icon name="user" size={25} type = 'feather' color={tintColor} />, 
       header: null
@@ -75,26 +104,7 @@ export const Tabs = TabNavigator({
 });
 
 
-export const SettingsStack = StackNavigator({
-  Settings: {
-    screen: Settings,
-    navigationOptions: {
-      title: 'Settings',
-      headerStyle: {
-        backgroundColor: '#3BA9FF',
-        height: 35,
 
-      },
-      headerTitleStyle: {
-        fontWeight: 'bold',                                                                                   
-        color: '#FFF'
-
-      }
-      
-    },
-  },
-
-});
 
 export const Stream = StackNavigator({
     ClassStream: {
@@ -116,9 +126,6 @@ export const Root = StackNavigator({
     ClassStream: {
       screen: ClassStream
     },
-    Settings: {
-      screen: SettingsStack,
-    }
   },
 {
   headerMode: 'none',

@@ -88,7 +88,9 @@ class Settings extends Component {
   }
 
   cancel = () => {
-    this.props.navigation.navigate('Me')
+    //this.props.navigation.navigate('Me')
+    this.props.navigation.goBack();
+    
   }
 
 

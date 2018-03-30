@@ -21,7 +21,6 @@ import {firebase, db} from '../../services/firebase';
 //import UserAvatar from 'react-native-user-avatar'
 
 const background = require('../../images/one.jpg')
-const profPic = require('../../images/bw_logo.png')
 var name;
 
 const { width } = Dimensions.get('window')
@@ -37,7 +36,8 @@ export default class Me extends Component {
       bio: 'sleep',
       photos: [],
       index: null, 
-      modalVisible: false
+      modalVisible: false,
+      profPic: "https://s3.amazonaws.com/uifaces/faces/twitter/brynn/128.jpg"
       
         
     }
@@ -54,13 +54,14 @@ export default class Me extends Component {
    _firstName = doc.data().firstName;
    _lastName = doc.data().lastName;
    _bio = doc.data().bio;
+   _proPic = doc.data().proPic
 
-   console.log(name); // this returns user name
    this.setState({
      isLoading: false,
      firstName: _firstName,
      lastName: _lastName,
      bio: _bio,
+     profPic: _proPic
     });
   }.bind(this))
 
@@ -94,7 +95,7 @@ export default class Me extends Component {
         rounded
         large
         title="CR"
-        source={profPic}
+        source={{uri: this.state.profPic}}
         activeOpacity={0.7}
         onPress={() => { this.toggleModal(); this.getPhotos() }}
         />

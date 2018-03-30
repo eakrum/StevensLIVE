@@ -12,11 +12,13 @@ import {
   Image,
   Button
 } from 'react-native';
+import RNFetchBlob from 'react-native-fetch-blob'
+import CameraRollPicker from 'react-native-camera-roll-picker'
 import { List, ListItem, Input, Avatar, Divider, Header } from 'react-native-elements';
 import {firebase, db} from '../../services/firebase'
 
 const background = require('../../images/one.jpg');
-const profPic = require('../../images/bw_logo.png')
+var profPic = 'https://firebasestorage.googleapis.com/v0/b/livelecture-2dceb.appspot.com/o/posts%2Ftest.jpg?alt=media&token=535c7ab6-4d31-44d2-9ce3-db6f9650ac83'
 var name;
 
 const { width } = Dimensions.get('window')
@@ -59,19 +61,43 @@ class Settings extends Component {
       
     }
   }
-  setIndex = (index) => {
-    if (index === this.state.index) {
-      index = null
-    }
-    this.setState({ index })
-  }
-  
-  getPhotos = () => {
-    CameraRoll.getPhotos({
-      first: 20,
-      assetType: 'All'
+
+  getSelectedImages = (selectedImages, currentImage) => {
+    
+    const image = currentImage.uri
+ 
+    const Blob = RNFetchBlob.polyfill.Blob
+    const fs = RNFetchBlob.fs
+    window.XMLHttpRequest = RNFetchBlob.polyfill.XMLHttpRequest
+    window.Blob = Blob
+ 
+   
+    let uploadBlob = null
+    const imageRef = firebase.storage().ref('posts').child("test.jpg")
+    let mime = 'image/jpg'
+    fs.readFile(image, 'base64')
+      .then((data) => {
+        return Blob.build(data, { type: `${mime};BASE64` })
     })
-    .then(r => this.setState({ photos: r.edges }))
+    .then((blob) => {
+        uploadBlob = blob
+        return imageRef.put(blob, { contentType: mime })
+      })
+      .then(() => {
+        uploadBlob.close()
+        return imageRef.getDownloadURL()
+      })
+      .then((url) => {
+        // URL of the image uploaded on Firebase storage
+        console.log(url);
+        profPic = url;
+        
+      })
+      .catch((error) => {
+        console.log(error);
+ 
+      })  
+ 
   }
   
   toggleModal = () => {
@@ -95,11 +121,14 @@ class Settings extends Component {
 
 
   fetchChanges = () => {
+    console.log(profPic);
+    console.log(this.state.firstName);
     db.collection('users').doc(this.state.userID).update({
       'firstName': this.state.firstName,
       'lastName': this.state.lastName,
       'office': this.state.office,
-      'bio': this.state.bio, 
+      'bio': this.state.bio,
+      'proPic': profPic,
   })
     
     
@@ -116,12 +145,12 @@ class Settings extends Component {
         rounded
         large
         title="CR"
-        source={profPic}
+        source={{uri: profPic}}
         activeOpacity={0.7}
         
       />
 
-      <TouchableHighlight onPress={() => { this.toggleModal(); this.getPhotos() }} style = {styles.avatar}>
+      <TouchableHighlight onPress={() => { this.toggleModal()}} style = {styles.avatar}>
         <Text style = {styles.miniHeader}> Change Profile Photo </Text>
       </TouchableHighlight>
       <View style = {styles.buttonContainer}>
@@ -172,28 +201,9 @@ class Settings extends Component {
             
             <ScrollView
               contentContainerStyle={styles.scrollView}>
-              {
-                this.state.photos.map((p, i) => {
-                  return (
-                    <TouchableHighlight
-                      style={{opacity: i === this.state.index ? 0.5 : 1}}
-                      key={i}
-                      underlayColor='transparent'
-                      onPress={() => this.setIndex(i)}
-                    >
-                      <Image
-                        style={{
-                          width: width/3,
-                          height: width/3
-                        }}
-                        source={{uri: p.node.image.uri}}
-                      />
-                    </TouchableHighlight>
-                  )
-                })
-              }
+              <CameraRollPicker selected={[]} maximum={1} callback={this.getSelectedImages} />
               <Button
-              title='Close'
+              title='Done'
               onPress={this.closeModal}
             />
             </ScrollView>

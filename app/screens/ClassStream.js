@@ -9,7 +9,6 @@ import { SocialIcon, Icon, Button, Input } from 'react-native-elements';
 import InCallManager from 'react-native-incall-manager';
 import {firebase} from '../../services/firebase';
 
-
 //const socket = SocketIOClient.connect('https://ec2-13-58-75-207.us-east-2.compute.amazonaws.com:4443/', {transports: ['websocket']}); 
 const pcPeers = {};
 const configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
@@ -19,25 +18,18 @@ let localStream;
 let mySelf;
 let ableSwitchCam;
 const instructor = "Xy2Mzu9kM9cJrWxfqYIi1cG52Dk1";
+
 function join(roomID) {
-  
     socket.emit('join', roomID, function(socketIds){
       console.log('join', socketIds);
       for (const i in socketIds) {
         const socketId = socketIds[i];
-
         if (instructor == firebase.auth().currentUser.uid){
           createPC(socketId, true);
         }
-
         else {
           createPC(socketId, false);
-        }
-
-
-        
-       
-        
+        } 
       }
     });
   }
@@ -137,7 +129,6 @@ function join(roomID) {
       pc.onremovestream = function (event) {
         console.log('onremovestream', event.stream);
       };
-      
 
       if(instructor == firebase.auth().currentUser.uid){
         socket.emit('log', "yes");
@@ -275,13 +266,8 @@ function join(roomID) {
 export default class ClassStream extends Component { 
 
  
-  
-
   constructor(props){
     super(props)
-
-    
-       
 
     this.state = {
       videoURL: this.props.navigation.state.params.videoURL,
@@ -303,20 +289,15 @@ export default class ClassStream extends Component {
 
   }
 
-  
-
   componentDidMount(){
    
     console.log('i am: ', mySelf);
     console.log('u are:' ,localStream)
 
     container = this;
-   this.streamConfig();
-   
+    this.streamConfig();
     
   }
- 
-
 
   static navigationOptions = {
     title: 'ClassStream'
@@ -335,6 +316,7 @@ export default class ClassStream extends Component {
   }
     render() {
       this.switchCameraButton();
+      const localView = <RTCView streamURL={this.state.selfViewSrc} style={styles.selfView}/>
       const camSwitchButton = <Button outline rounded large text="Switch Cam" onPress={this.switcher}
         icon={<Icon name='tv' size={15} color='white'/>} />
 
@@ -343,10 +325,9 @@ export default class ClassStream extends Component {
         <Icon iconStyle = {styles.edit} name="gear" size={80} type = 'evilicon' color= '#FFF' onPress = {this.backAlert}/>
 
         {ableSwitchCam ? camSwitchButton : null}
+        
           <View >
-            
-              <RTCView streamURL={this.state.selfViewSrc} style={styles.selfView}/>
-
+          {ableSwitchCam ? localView : null}
 
              {
           mapHash(this.state.remoteList, function(remote, index) {
@@ -365,9 +346,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
 
-
-
-
   },
   button: {
     backgroundColor:'#1496BB',
@@ -375,7 +353,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     paddingHorizontal: 30,
     
-
   },
 
   backgroundImage: {
@@ -383,7 +360,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     
-
   },
   backgroundImage1: {
     flex: 1,

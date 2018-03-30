@@ -81,6 +81,7 @@ export default class Login extends Component {
 
                    </Text>
                    
+                   
                    <Input
                    containerStyle={loginstyles.input}
                    keyboardType="email-address"

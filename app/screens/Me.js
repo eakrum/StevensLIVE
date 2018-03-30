@@ -1,5 +1,19 @@
 import React, { Component } from 'react';
-import { ScrollView, View, ImageBackground, TouchableOpacity, Dimensions, StyleSheet, StatusBar, Image, Text, ActivityIndicator } from 'react-native';
+import {
+  ScrollView, 
+  View, 
+  ImageBackground, 
+  TouchableOpacity, 
+  Dimensions, 
+  StyleSheet, 
+  StatusBar, 
+  Image, 
+  Text, 
+  ActivityIndicator, 
+  CameraRoll, 
+  Modal, 
+  TouchableHighlight
+} from 'react-native';
 import { Tile, List, ListItem, Button, Icon, Avatar } from 'react-native-elements';
 import {firebase, db} from '../../services/firebase';
 
@@ -10,6 +24,7 @@ const background = require('../../images/one.jpg')
 const profPic = require('../../images/bw_logo.png')
 var name;
 
+const { width } = Dimensions.get('window')
 
 
 export default class Me extends Component {
@@ -20,20 +35,14 @@ export default class Me extends Component {
       firstName: 'boop',
       isLoading: true,
       bio: 'sleep',
+      photos: [],
+      index: null, 
+      modalVisible: false
       
         
     }
 
     this.setState = this.setState.bind(this);
-
- }
-
- 
-
- componentDidMount() {
-
-   this.fetchData();
-
 
  }
 
@@ -61,6 +70,17 @@ export default class Me extends Component {
    this.props.navigation.navigate('Settings');
  }
 
+
+ componentDidMount() {
+  
+     this.fetchData();
+  
+  
+   }
+
+
+
+
   render() {
     if (this.state.isLoading) {
       return <ImageBackground style = {styles.container} source = {background}><ActivityIndicator size="large" color="#FFF" /></ImageBackground>;
@@ -76,12 +96,11 @@ export default class Me extends Component {
         title="CR"
         source={profPic}
         activeOpacity={0.7}
+        onPress={() => { this.toggleModal(); this.getPhotos() }}
         />
 
         <Text style = {styles.header}> {this.state.firstName} {this.state.lastName} </Text>
         <Icon iconStyle = {styles.edit} name="gear" size={30} type = 'evilicon' color= '#FFF' onPress = {this.editSettings}/>
-        
-        
         <ScrollView >
          
           <View style = {styles.scrollContainer}>
@@ -98,8 +117,6 @@ export default class Me extends Component {
     
       
         </ScrollView>
-
-         
        
       </ImageBackground>
 

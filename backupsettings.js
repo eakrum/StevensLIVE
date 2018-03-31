@@ -10,16 +10,55 @@ import {
   Modal,
   CameraRoll,
   Image,
-  Button
+  Button,
+  TouchableOpacity,
+  ActivityIndicator
 } from 'react-native';
 import RNFetchBlob from 'react-native-fetch-blob'
 import CameraRollPicker from 'react-native-camera-roll-picker'
 import { List, ListItem, Input, Avatar, Divider, Header } from 'react-native-elements';
-import {firebase, db} from '../../services/firebase'
+import {firebase, db} from '../../services/firebase';
+import ImagePicker from 'react-native-image-picker';
 
 const background = require('../../images/one.jpg');
 var profPic = 'https://firebasestorage.googleapis.com/v0/b/livelecture-2dceb.appspot.com/o/posts%2Ftest.jpg?alt=media&token=535c7ab6-4d31-44d2-9ce3-db6f9650ac83'
-var name;
+var download;
+
+const storage = firebase.storage()
+
+// Prepare Blob support
+const Blob = RNFetchBlob.polyfill.Blob
+const fs = RNFetchBlob.fs
+window.XMLHttpRequest = RNFetchBlob.polyfill.XMLHttpRequest
+window.Blob = Blob
+
+const uploadImage = (uri, mime = 'application/octet-stream') => {
+  return new Promise((resolve, reject) => {
+    const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
+    const sessionId = new Date().getTime()
+    let uploadBlob = null
+    const imageRef = storage.ref('images').child(`${sessionId}`)
+
+    fs.readFile(uploadUri, 'base64')
+      .then((data) => {
+        return Blob.build(data, { type: `${mime};BASE64` })
+      })
+      .then((blob) => {
+        uploadBlob = blob
+        return imageRef.put(blob, { contentType: mime })
+      })
+      .then(() => {
+        uploadBlob.close()
+        return imageRef.getDownloadURL()
+      })
+      .then((url) => {
+        resolve(url)
+      })
+      .catch((error) => {
+        reject(error)
+    })
+  })
+}
 
 const { width } = Dimensions.get('window')
 
@@ -57,52 +96,74 @@ class Settings extends Component {
       bio: '',
       photos: [],
       index: null, 
-      modalVisible: false
+      modalVisible: false,
+      profPic: this.props.navigation.state.params.profPic
       
     }
   }
 
-  getSelectedImages = (selectedImages, currentImage) => {
+  // getSelectedImages = (selectedImages, currentImage) => {
     
-    const image = currentImage.uri
+  //   const image = currentImage.uri
  
-    const Blob = RNFetchBlob.polyfill.Blob;
-    window.Blob = Blob;
-    const tempWindowXMLHttpRequest = window.XMLHttpRequest;
-    window.XMLHttpRequest = RNFetchBlob.polyfill.XMLHttpRequest;
-    const fs = RNFetchBlob.fs
+  //   const Blob = RNFetchBlob.polyfill.Blob
+  //   const fs = RNFetchBlob.fs
+  //   window.XMLHttpRequest = RNFetchBlob.polyfill.XMLHttpRequest
+  //   window.Blob = Blob
  
    
-    let uploadBlob = null
-    const imageRef = firebase.storage().ref('profile-photos').child(firebase.auth().currentUser.email)
-    let mime = 'image/jpg'
-    fs.readFile(image, 'base64')
-      .then((data) => {
-        return Blob.build(data, { type: `${mime};BASE64` })
-    })
-    .then((blob) => {
-        uploadBlob = blob
-        return imageRef.put(blob, { contentType: mime })
-      })
-      .then(() => {
-        uploadBlob.close()
-        return imageRef.getDownloadURL()
-      })
-      .then((url) => {
-        // URL of the image uploaded on Firebase storage
-        console.log(url);
-        profPic = url;
-        window.XMLHttpRequest = tempWindowXMLHttpRequest;
-        
-      })
-      .catch((error) => {
-        console.log(error);
- 
-      })  
+  //   let uploadBlob = null;
+  //   const imageRef = firebase.storage().ref('profile-Photos').child(firebase.auth().currentUser.email + '.jpg');
+  //   let mime = 'image/jpg';
+    
+    
 
-      
-      
+  //   //THIS ADDS IMAGE TO FIRE STORAGE AND PULLS URL
+  //   fs.readFile(image, 'base64')
+  //     .then((data) => {
+  //       return Blob.build(data, { type: `${mime};BASE64` })
+  //   })
+  //   .then((blob) => {
+  //       uploadBlob = blob
+  //       return imageRef.put(blob, { contentType: mime })
+  //     })
+  //     .then(() => {
+  //       uploadBlob.close()
+  //       return imageRef.getDownloadURL()
+  //     })
+  //     .then((url) => {
+  //       // URL of the image uploaded on Firebase storage
+  //       console.log('my url is' , url);
+  //       this.setState({profPic: url})
+  //       console.log('new prof pic:', this.state.profPic)
+        
+        
+  //     })
+  //     .catch((error) => {
+  //       console.log(error);
  
+  //     })  
+ 
+  // }
+
+  _pickImage() {
+    this.setState({ uploadURL: '' })
+
+    ImagePicker.launchImageLibrary({}, response  => {
+      uploadImage(response.uri)
+        .then(url => this.setState({ uploadURL: url }))
+        .catch(error => console.log(error))
+    })
+  }
+  
+  newPic = () => {
+    console.log('i want to put this', this.state.profPic)
+    console.log(typeof this.state.profPic)
+    db.collection('users').doc(this.state.userID).set({
+      'proPic': this.state.profPic,
+  })
+    
+    
   }
   
   toggleModal = () => {
@@ -119,21 +180,21 @@ class Settings extends Component {
   }
 
   cancel = () => {
-    //this.props.navigation.navigate('Me')
     this.props.navigation.goBack();
     
   }
 
 
+  //this queries the specific users document and updates fields, the state is properly passed
+  //the state is also a string
   fetchChanges = () => {
-    console.log(profPic);
-    console.log(this.state.firstName);
-    db.collection('users').doc(this.state.userID).update({
+    console.log('i want to put this', this.state.profPic)
+    console.log(typeof this.state.profPic)
+    db.collection('users').doc(this.state.userID).set({
       'firstName': this.state.firstName,
       'lastName': this.state.lastName,
       'office': this.state.office,
       'bio': this.state.bio,
-      'proPic': profPic,
   })
     
     
@@ -150,12 +211,12 @@ class Settings extends Component {
         rounded
         large
         title="CR"
-        source={{uri: profPic}}
+        source={{uri: this.state.profPic}}
         activeOpacity={0.7}
         
       />
 
-      <TouchableHighlight onPress={() => { this.toggleModal()}} style = {styles.avatar}>
+      <TouchableHighlight onPress={this._pickImage} style = {styles.avatar}>
         <Text style = {styles.miniHeader}> Change Profile Photo </Text>
       </TouchableHighlight>
       <View style = {styles.buttonContainer}>
@@ -191,6 +252,11 @@ class Settings extends Component {
         onChangeText={(text) => this.setState({bio: text})} 
         value = {this.state.bio}/>
         <Divider style={{ backgroundColor: 'blue' }} />
+
+        <Button 
+          title="test" 
+          onPress ={this.newPic}
+              />
       
 
       

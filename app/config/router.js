@@ -66,6 +66,10 @@ export const Profile = StackNavigator({
     },
   },
 
+},
+{
+  mode: 'modal'
+
 });
 
 export const Tabs = TabNavigator({

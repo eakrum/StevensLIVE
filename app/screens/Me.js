@@ -37,7 +37,7 @@ export default class Me extends Component {
       photos: [],
       index: null, 
       modalVisible: false,
-      profPic: "https://s3.amazonaws.com/uifaces/faces/twitter/brynn/128.jpg"
+      profPic: '',
       
         
     }

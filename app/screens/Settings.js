@@ -10,9 +10,11 @@ import {
   Modal,
   CameraRoll,
   Image,
+  Button,
 } from 'react-native';
-import RNFetchBlob from 'react-native-fetch-blob'
-import CameraRollPicker from 'react-native-camera-roll-picker'
+
+import RNFetchBlob from 'react-native-fetch-blob';
+import CameraRollPicker from 'react-native-camera-roll-picker';
 import { List, ListItem, Avatar, Divider, Header, Icon } from 'react-native-elements';
 import {firebase, db} from '../../services/firebase';
 import {
@@ -24,11 +26,11 @@ import {
   Input,
   Label,
   Switch
-} from 'react-native-clean-form'
+} from 'react-native-clean-form';
 
  
 const background = require('../../images/one.jpg');
-var profPic = 'https://firebasestorage.googleapis.com/v0/b/livelecture-2dceb.appspot.com/o/profile-Photos%2Fbooty%40booty.com.jpg?alt=media&token=bb9d4984-c65a-4acc-b27d-cd6df745a23b'
+var profPic;
 var name;
 
 const { width } = Dimensions.get('window')
@@ -41,10 +43,10 @@ class Settings extends Component {
     return {
       headerTitle: 'Settings',
       headerRight: (
-        <Icon iconStyle = {styles.done} name="ios-checkmark-circle-outline" size={30} type = 'ionicon' color= '#FFF' onPress = {params.done}/>
+        <Icon iconStyle = {styles.done} name= 'md-checkmark' size={30} type = 'ionicon' color= '#FFF' onPress = {params.done}/>
       ),
       headerLeft: (
-        <Icon iconStyle = {styles.exit} name="ios-close-circle-outline" size={30} type = 'ionicon' color= '#FFF' onPress = {params.cancel}/>
+        <Icon iconStyle = {styles.exit} name="ios-arrow-back" size={30} type = 'ionicon' color= '#FFF' onPress = {params.cancel}/>
       ),
     };
   };
@@ -168,7 +170,6 @@ class Settings extends Component {
         activeOpacity={0.7}
         
       />
-
       <TouchableHighlight onPress={() => { this.toggleModal()}} style = {styles.avatar}>
         <Text style = {styles.profileButton}> Change Profile Photo </Text>
       </TouchableHighlight>
@@ -214,30 +215,19 @@ class Settings extends Component {
           animationType={"slide"}
           transparent={false}
           visible={this.state.modalVisible}
-          onRequestClose={() => console.log('closed')}
-        >
+          onRequestClose={() => console.log('closed')}>
           <View style={styles.modalContainer}>
-            
             <ScrollView
               contentContainerStyle={styles.scrollView}>
               <CameraRollPicker selected={[]} maximum={1} callback={this.getSelectedImages} />
               <Button
               title='Done'
               onPress={this.closeModal}
-            />
+              />
             </ScrollView>
           </View>
         </Modal>
-      
-      
-      </View>
-      
-      
-      
-
-      
-      
-      
+      </View>  
     );
   }
 }

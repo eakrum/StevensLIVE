@@ -10,15 +10,25 @@ import {
   Modal,
   CameraRoll,
   Image,
-  Button
 } from 'react-native';
 import RNFetchBlob from 'react-native-fetch-blob'
 import CameraRollPicker from 'react-native-camera-roll-picker'
-import { List, ListItem, Input, Avatar, Divider, Header } from 'react-native-elements';
-import {firebase, db} from '../../services/firebase'
+import { List, ListItem, Avatar, Divider, Header, Icon } from 'react-native-elements';
+import {firebase, db} from '../../services/firebase';
+import {
+  ActionsContainer,
+  FieldsContainer,
+  Fieldset,
+  Form,
+  FormGroup,
+  Input,
+  Label,
+  Switch
+} from 'react-native-clean-form'
 
+ 
 const background = require('../../images/one.jpg');
-var profPic = 'https://firebasestorage.googleapis.com/v0/b/livelecture-2dceb.appspot.com/o/posts%2Ftest.jpg?alt=media&token=535c7ab6-4d31-44d2-9ce3-db6f9650ac83'
+var profPic = 'https://firebasestorage.googleapis.com/v0/b/livelecture-2dceb.appspot.com/o/profile-Photos%2Fbooty%40booty.com.jpg?alt=media&token=bb9d4984-c65a-4acc-b27d-cd6df745a23b'
 var name;
 
 const { width } = Dimensions.get('window')
@@ -31,10 +41,10 @@ class Settings extends Component {
     return {
       headerTitle: 'Settings',
       headerRight: (
-        <Button onPress={params.done} title="Done" color="#fff" />
+        <Icon iconStyle = {styles.done} name="ios-checkmark-circle-outline" size={30} type = 'ionicon' color= '#FFF' onPress = {params.done}/>
       ),
       headerLeft: (
-        <Button onPress={params.cancel} title="Cancel" color="#fff" />
+        <Icon iconStyle = {styles.exit} name="ios-close-circle-outline" size={30} type = 'ionicon' color= '#FFF' onPress = {params.cancel}/>
       ),
     };
   };
@@ -54,6 +64,7 @@ class Settings extends Component {
       firstName: '',
       lastName:'',
       office: '',
+      email: '',
       bio: '',
       photos: [],
       index: null, 
@@ -89,7 +100,7 @@ class Settings extends Component {
         return imageRef.getDownloadURL()
       })
       .then((url) => {
-        // URL of the image uploaded on Firebase storage
+        // URL of the image uploaded on cloud storage
         console.log(url);
         profPic = url;
         window.XMLHttpRequest = tempWindowXMLHttpRequest;
@@ -139,13 +150,16 @@ class Settings extends Component {
     
   }
 
+  save = () => {
+    alert(this.state.firstName)
+  }
+
 
 
   render() {
     return (
-      
-      
-      <ImageBackground style = {styles.container}  source ={background}>
+      <View style = {styles.formCont}>
+      <View style = {styles.profileContainer}>
       <Avatar style = {styles.avatar}
         rounded
         large
@@ -156,45 +170,45 @@ class Settings extends Component {
       />
 
       <TouchableHighlight onPress={() => { this.toggleModal()}} style = {styles.avatar}>
-        <Text style = {styles.miniHeader}> Change Profile Photo </Text>
+        <Text style = {styles.profileButton}> Change Profile Photo </Text>
       </TouchableHighlight>
-      <View style = {styles.buttonContainer}>
-      
-
-      
-      <Input
-        autoCorrect = {true}
-        placeholder='First Name'
-        color = '#FFF'
-        placeholderTextColor = '#FFF'
-        onChangeText={(text) => this.setState({firstName: text})} 
-        value = {this.state.firstName}/>
-        <Input
-        autoCorrect = {true}
-        placeholder='Last Name'
-        color = '#FFF'
-        placeholderTextColor = '#FFF'
-        onChangeText={(text) => this.setState({lastName: text})} 
-        value = {this.state.lastName}/>
-        <Input
-        autoCorrect = {true}
-        placeholder='Office Location'
-        color = '#FFF'
-        placeholderTextColor = '#FFF'
-        onChangeText={(text) => this.setState({office: text})} 
-        value = {this.state.office}/>
-        <Input
-        autoCorrect = {true}
-        placeholder='Add a bio!'
-        color = '#FFF'
-        placeholderTextColor = '#FFF'
-        onChangeText={(text) => this.setState({bio: text})} 
-        value = {this.state.bio}/>
-        <Divider style={{ backgroundColor: 'blue' }} />
-      
-
-      
       </View>
+      <Form>
+      <FieldsContainer>
+        <Fieldset label="Profile details">
+          <FormGroup>
+            <Label>First name</Label>
+            <Input placeholder="Enter your first name" onChangeText={(text) => this.setState({firstName: text})} />
+          </FormGroup>
+          <FormGroup>
+            <Label>Last name</Label>
+            <Input placeholder="Enter your last name" onChangeText={(text) => this.setState({lastName: text})} />
+          </FormGroup>
+          <FormGroup>
+            <Label>Email</Label>
+            <Input placeholder="Enter your email address" onChangeText={(text) => this.setState({email: text})} />
+          </FormGroup>
+          <FormGroup>
+            <Label>Bio</Label>
+            <Input placeholder="Enter a short bio" onChangeText={(text) => this.setState({bio: text})} />
+          </FormGroup>
+        </Fieldset>
+        <Fieldset label="Personal Details" last>
+          <FormGroup>
+            <Label>Office Location</Label>
+            <Input placeholder="BC 211" onChangeText={this.onPasswordChange} />
+          </FormGroup>
+          <FormGroup>
+            <Label>Phone Number</Label>
+            <Input placeholder="Enter your phone number" onChangeText={this.onRepeatPasswordChange} />
+          </FormGroup>
+          <FormGroup border={false}>
+            <Label>Instructor</Label>
+            <Switch onValueChange={this.toggle} />
+          </FormGroup>     
+        </Fieldset>
+      </FieldsContainer>
+    </Form>
 
       <Modal
           animationType={"slide"}
@@ -214,7 +228,16 @@ class Settings extends Component {
             </ScrollView>
           </View>
         </Modal>
-      </ImageBackground>
+      
+      
+      </View>
+      
+      
+      
+
+      
+      
+      
     );
   }
 }
@@ -227,65 +250,36 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#FFFFFF',  
   },
-  
-  loginContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center'
-    //justifyContent: 'space-between'
-  },
-  
-  loginButton: {
-    backgroundColor: "#3BA9FF",
-    width: 300,
-    height: 45,
-    borderColor: "transparent",
-    borderWidth: 0,
 
-  }, 
- 
-  buttonContainer: {
-    alignItems: 'center',
-    flexDirection: 'column',
-    top: 40
-  },
-
-  input: {
-    borderWidth: 1,
-    width: 300,
-    borderColor: '#F2F3F4',
-    margin: 10,
-    height: 50,
-    paddingLeft: 10,
+  profileContainer: {
+    alignItems: 'center', 
+    marginTop: 5,
     
+
   },
 
-  miniHeader: {
-    fontWeight: '500', 
+  exit: {
+    marginLeft: 20,
+  },
+
+  done: {
+    marginRight: 20,
+  },
+
+  profileButton: {
     color: "#3BA9FF", 
     fontSize: 15,
-    justifyContent: 'flex-start',
-    marginRight: 195,
-    marginTop: 15,
-    paddingBottom: 5,
-    
-
-  },
-
-  header: {
-    fontWeight: '900', 
-    color: '#FFF', 
-    fontSize: 40,
-    marginRight: 195,
-    paddingBottom: 10,
 
   },
 
   avatar: {
-    marginTop: 10,
+    marginTop: 50,
     //alignItems: 'center',
   },
+  formCont: {
+    flex: 1,  
+  },
+
 });
 
 

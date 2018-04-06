@@ -38,6 +38,28 @@ export const WelcomeStack = StackNavigator({
 },
 
 })
+export const ClassSelection = StackNavigator({
+  ClassList: {
+    screen: ClassList,
+    navigationOptions: {
+      tabBarIcon: ({ tintColor }) => <Icon name="user" size={25} type = 'feather' color={tintColor} />, 
+      header: null
+      }
+     
+  },
+  ClassStream: {
+    screen: ClassStream,
+    navigationOptions: {
+      header: null,
+      tabBarVisible: false 
+    },
+  },
+
+},
+{
+  mode: 'modal'
+
+});
 
 export const Profile = StackNavigator({
   Me: {
@@ -75,8 +97,8 @@ export const Profile = StackNavigator({
 export const Tabs = TabNavigator({
  
 
-  ClassList: {
-      screen: ClassList,
+  ClassSelection: {
+      screen: ClassSelection,
       navigationOptions: {
           title: 'Class Selection',
           //gesturesEnabled: false,
@@ -109,16 +131,6 @@ export const Tabs = TabNavigator({
 
 
 
-
-export const Stream = StackNavigator({
-    ClassStream: {
-        screen: ClassStream,
-        navigationOptions: {
-          title: 'Class Stream',
-        }
-      },
-})
-
 export const Root = StackNavigator({
     Welcome: {
       screen: WelcomeStack
@@ -126,9 +138,6 @@ export const Root = StackNavigator({
     Tabs: {
       screen: Tabs,
       
-    },
-    ClassStream: {
-      screen: ClassStream
     },
   },
 {

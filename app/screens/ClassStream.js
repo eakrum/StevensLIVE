@@ -257,7 +257,7 @@ function join(roomID) {
 
     function counter(viewers){
       console.log('viewers', viewers)
-      alert('Viewers: ', viewers);
+      //alert('Viewers: ', viewers);
       
     }
   
@@ -315,6 +315,7 @@ export default class ClassStream extends Component {
       roomID: this.props.navigation.state.params.roomID,
       selfViewSrc: mySelf,
       remoteList: this.props.navigation.state.params.remoteList,
+      viewerNumber: '50'
     }
 
   }
@@ -354,7 +355,7 @@ export default class ClassStream extends Component {
   backAlert = () => {
     InCallManager.stop();
     leave(this.state.roomID);
-    this.props.navigation.navigate('ClassList');
+    this.props.navigation.goBack();
     socket.emit('log', 'leaving');
     // getLocalStream(true, function(stream) {
     //   if (localStream) {
@@ -375,17 +376,20 @@ export default class ClassStream extends Component {
     render() {
       this.switchCameraButton();
       console.log("Peers: ", pcPeers);
-      const localView = <RTCView streamURL={this.state.selfViewSrc} style={styles.selfView}/>
-      const camSwitchButton = <Button outline rounded large text="Switch Cam" onPress={this.switcher}
-        icon={<Icon name='tv' size={15} color='white'/>} />
+      const localView = <RTCView streamURL={this.state.selfViewSrc} style = {styles.selfView}/>
+      const camSwitchButton = <Icon iconStyle = {styles.switchCam} name="ios-reverse-camera-outline" size={30} type = 'ionicon' color= '#FFF' onPress = {this.switcher}/>
 
        return (
-        <View> 
-        <Icon iconStyle = {styles.edit} name="gear" size={80} type = 'evilicon' color= '#FFF' onPress = {this.backAlert}/>
+        <View style = {styles.container}>
+        <View style = {styles.buttonContainer}>
+        <Icon iconStyle = {styles.leave} name="ios-close-circle-outline" size={27} type = 'ionicon' color= '#FFF' onPress = {this.backAlert}/>
+        <Icon iconStyle = {styles.viewer} name="ios-eye-outline" size={30} type = 'ionicon' color= '#FFF' onPress = {this.backAlert}/>
+        <Text style = {styles.callButton}> {this.state.viewerNumber} </Text>
 
         {ableSwitchCam ? camSwitchButton : null}
+        </View>
         
-          <View >
+          <View style = {styles.videoContainer}>
           {ableSwitchCam ? localView : null}
 
              {
@@ -400,17 +404,26 @@ export default class ClassStream extends Component {
 }
 
 const styles = StyleSheet.create({
-  background: {
+  container: {
     flex: 1,
+    backgroundColor: '#43474f',
+    //flexDirection: 'row',
+   
+    
+  },
+
+  videoContainer: {
+    flex: 1,
+    alignSelf: 'stretch',
+  },
+  buttonContainer: {
+    position: 'absolute',
     justifyContent: 'center',
     alignItems: 'center',
-
-  },
-  button: {
-    backgroundColor:'#1496BB',
-    borderRadius:15,
-    overflow: 'hidden',
-    paddingHorizontal: 30,
+    left: 0,
+    right: 0,
+    bottom: 40,
+    zIndex: 5
     
   },
 
@@ -427,14 +440,11 @@ const styles = StyleSheet.create({
 
   },
   selfView: {
-    position: "absolute",
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
+    flex: 1,
+    //resizeMode: 'cover'
   },
   remoteView: {
-    position: "absolute",
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
+    flex: 1,
    
     resizeMode: 'cover',
 
@@ -445,5 +455,47 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     backgroundColor: 'transparent',
     color: '#F0FFFF',
+  },
+
+  viewer: {
+    position: 'absolute',
+    top: -730,
+    right: -120,
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    zIndex: 5
+    
+  },
+
+  callButton: {
+    position: 'absolute',
+    alignItems: 'flex-start',
+    fontSize: 15,
+    top: -724,
+    right: 30,
+    color: '#FFF',
+    justifyContent: 'flex-start',
+    zIndex: 5
+  },
+
+  leave: {
+    position: 'absolute',
+    top: -730,
+    left: -150,
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    zIndex: 5
+
+  },
+
+  switchCam: {
+    position: 'absolute',
+    left: 120,
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
+    zIndex: 5
+
   }
+
+
 });

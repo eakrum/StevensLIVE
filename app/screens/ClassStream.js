@@ -257,7 +257,7 @@ function join(roomID) {
 
     function counter(viewers){
       console.log('viewers', viewers)
-      //alert('Viewers: ', viewers);
+      container.setState({viewerNumber:viewers});
       
     }
   

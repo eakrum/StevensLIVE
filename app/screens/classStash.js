@@ -23,7 +23,6 @@ function join(roomID) {
     socket.emit('join', roomID, function(socketIds){
       console.log('join', socketIds);
       for (const i in socketIds) {
-        console.log('hi');
         const socketId = socketIds[i];
         if (instructor == firebase.auth().currentUser.uid){
           createPC(socketId, true);
@@ -32,9 +31,8 @@ function join(roomID) {
           createPC(socketId, false);
         } 
       }
+      //console.log('join2', socketIds)
     });
-    socket.emit('counter', roomID);
- 
   }
   
   function getLocalStream(isFront, callback) {
@@ -78,8 +76,7 @@ function join(roomID) {
     function createPC(socketId, isOffer) {
       const pc = new RTCPeerConnection(configuration);
       pcPeers[socketId] = pc;
-      console.log("PCPEERS1: ", pcPeers);
-      console.log('PCpeersSocketID: ', pcPeers[socketId]);
+      
     
       pc.onicecandidate = function (event) {
         //console.log('onicecandidate', event.candidate);
@@ -205,44 +202,18 @@ function join(roomID) {
       }
     }
   
-
-    function leave(roomID) {
-      //container.setState({leftRoom: true});
-      socket.emit('leave', roomID, function(socketIds){
-        let numConnections = 0;
-        for (const i in socketIds) {
-          numConnections = numConnections + 1;
-        }
-        numConnections = numConnections - 1;
-        console.log(numConnections);
-       
-          for (const i in socketIds){
-            if (numConnections > 0){
-            const socketId = socketIds[i];
-            console.log('leave0', socketIds[i]);
-            console.log('leave1', socketIds);
-            console.log('leave2', socketId);
-            const pc = pcPeers[socketId];
-            console.log('leave3', pcPeers);
-            console.log('leave4', pcPeers[socketId]);
-          //const viewIndex = pc.viewIndex;
-            pc.close();
-            delete pcPeers[socketId];
-        
-            const remoteList = container.state.remoteList;
-            delete remoteList[socketId]
-            container.setState({ remoteList: remoteList });
-            numConnections = numConnections - 1;
-
-          } else {
-            console.log('leaving', socketIds);
-            console.log('done');
-          }
-        }
-        
-    });
-    socket.emit('log', 'leaving');
-  }
+    function leave(socketId) {
+      console.log('leave', socketId);
+      const pc = pcPeers[socketId];
+      const viewIndex = pc.viewIndex;
+      pc.close();
+      delete pcPeers[socketId];
+    
+      const remoteList = container.state.remoteList;
+      delete remoteList[socketId]
+      container.setState({ remoteList: remoteList });
+      container.setState({info: 'One peer leave!'});
+    }
   
     socket.on('exchange', function(data){
       exchange(data);
@@ -250,16 +221,6 @@ function join(roomID) {
     socket.on('leave', function(socketId){
       leave(socketId);
     });
-
-    socket.on('viewers', function(viewers){
-      counter(viewers);
-    });
-
-    function counter(viewers){
-      console.log('viewers', viewers)
-      alert('Viewers: ', viewers);
-      
-    }
   
     socket.on('connect', function(data) {
       console.log('connect');
@@ -300,6 +261,10 @@ function join(roomID) {
 
     function cameraSwitch(){
       localStream.getVideoTracks().forEach(track => { track._switchCamera();});
+    }
+
+    function getViewers() {
+
     }
      
     
@@ -352,29 +317,10 @@ export default class ClassStream extends Component {
   }
 
   backAlert = () => {
-    InCallManager.stop();
-    leave(this.state.roomID);
-    this.props.navigation.navigate('ClassList');
-    socket.emit('log', 'leaving');
-    // getLocalStream(true, function(stream) {
-    //   if (localStream) {
-    //     for (const id in pcPeers) {
-    //       const pc = pcPeers[id];
-          
-    //       pc && pc.removeStream(localStream);
-          
-          
-    //     }
-        
-    //     localStream.release();
-    //   }
-
-    // });
-    
+    alert('Back');
   }
     render() {
       this.switchCameraButton();
-      console.log("Peers: ", pcPeers);
       const localView = <RTCView streamURL={this.state.selfViewSrc} style={styles.selfView}/>
       const camSwitchButton = <Button outline rounded large text="Switch Cam" onPress={this.switcher}
         icon={<Icon name='tv' size={15} color='white'/>} />

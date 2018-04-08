@@ -9,6 +9,7 @@ import Register from '../screens/Welcome/Register';
 import Me from '../screens/Me';
 import Name from '../screens/Welcome/Name';
 import Settings from '../screens/Settings';
+import Search from '../screens/Search';
 
 export const WelcomeStack = StackNavigator({
     Login: {
@@ -107,6 +108,17 @@ export const Tabs = TabNavigator({
           tabBarIcon: ({ tintColor }) => <Icon name="home" type = 'feather' size={25} color={tintColor} />,
       }
   },
+
+  Search: {
+    screen: Search,
+    navigationOptions: {
+        title: 'Search Professors',
+        //gesturesEnabled: false,
+        header: null,
+        //gesturesEnabled: false
+        tabBarIcon: ({ tintColor }) => <Icon name="search" type = 'feather' size={25} color={tintColor} />,
+    }
+},
 
   Profile: {
     screen: Profile,

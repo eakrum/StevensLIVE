@@ -17,6 +17,7 @@ let container;
 let localStream;
 let mySelf;
 let ableSwitchCam;
+let user;
 const instructor = "Xy2Mzu9kM9cJrWxfqYIi1cG52Dk1";
 
 function join(roomID) {
@@ -33,6 +34,7 @@ function join(roomID) {
         } 
       }
     });
+    socket.emit('getUser', roomID);
     socket.emit('counter', roomID);
  
   }
@@ -113,7 +115,7 @@ function join(roomID) {
           }, 1000);
         }
         if (event.target.iceConnectionState === 'connected') {
-          createDataChannel();
+          //createDataChannel();
         }
       };
       pc.onsignalingstatechange = function(event) {
@@ -143,7 +145,7 @@ function join(roomID) {
         socket.emit('exchange', {'to': socketId, 'setup': "??" });
       }
       
-      function createDataChannel() {
+      /*function createDataChannel() {
         if (pc.textDataChannel) {
           return;
         }
@@ -168,7 +170,7 @@ function join(roomID) {
         };
     
         pc.textDataChannel = dataChannel;
-      }
+      }*/
       return pc;
     }
   
@@ -257,8 +259,11 @@ function join(roomID) {
 
     function counter(viewers){
       console.log('viewers', viewers)
-      container.setState({viewerNumber:viewers});
-      
+      container.setState({viewerNumber:viewers});  
+    }
+
+    function getUser(viewers){
+      console.log('user: ', viewers);
     }
   
     socket.on('connect', function(data) {
@@ -315,7 +320,7 @@ export default class ClassStream extends Component {
       roomID: this.props.navigation.state.params.roomID,
       selfViewSrc: mySelf,
       remoteList: this.props.navigation.state.params.remoteList,
-      viewerNumber: '50'
+      viewerNumber: '0'
     }
 
   }

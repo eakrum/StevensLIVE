@@ -39,6 +39,7 @@
 		5705672D8FD844AF99810D6D /* Feather.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 76289BA21B174082816A16AF /* Feather.ttf */; };
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; };
 		74DF885FF9BA4B4C9E60BB59 /* Entypo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9C0097FB3CC3496B8B33C926 /* Entypo.ttf */; };
+		77A4DA15207B191C0087F235 /* libRCTCameraRoll.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 77ACCA7520771AB4008E7C26 /* libRCTCameraRoll.a */; };
 		77E0A307203CD4E800B361CE /* WebRTC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 77E0A306203CD4E800B361CE /* WebRTC.framework */; };
 		77E0A308203CD5B700B361CE /* WebRTC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 77E0A306203CD4E800B361CE /* WebRTC.framework */; };
 		77E0A309203CD5B700B361CE /* WebRTC.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 77E0A306203CD4E800B361CE /* WebRTC.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -465,6 +466,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				77A4DA15207B191C0087F235 /* libRCTCameraRoll.a in Frameworks */,
 				77E0A326203CD84E00B361CE /* libRNInCallManager.a in Frameworks */,
 				77E0A31F203CD69D00B361CE /* libstdc++.tbd in Frameworks */,
 				77E0A31D203CD69000B361CE /* libsqlite3.tbd in Frameworks */,

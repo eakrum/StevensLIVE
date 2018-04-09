@@ -1,15 +1,14 @@
 'use strict';
 import React, { Component } from 'react';
-import {StyleSheet, Text, TouchableHighlight, ScrollView, ImageBackground,Dimensions, FlatList, ActivityIndicator} from 'react-native';
-import { SocialIcon, Icon, Button, Input, List, ListItem } from 'react-native-elements';
+import {View, StyleSheet, Text, TouchableHighlight, ScrollView, ImageBackground,Dimensions, FlatList, ActivityIndicator} from 'react-native';
+import { SocialIcon, Icon, Button, Input, List, ListItem, SearchBar } from 'react-native-elements';
 import InCallManager from 'react-native-incall-manager';
 import {db} from '../../services/firebase'
 
 
 const logo = require('../../images/one.jpg')
 
-var professor;
-
+var profUID;
 var professors = new Array();
 
 const background = require('../../images/one.jpg');
@@ -21,10 +20,15 @@ export default class Search extends Component {
         super(props)
         this.state = {
             professors: [],
+            profID: '8FYUwEjDQOUHBG1iJ4tgHmkPsJE3',
             isLoading: true,
         }
+
+        this.setState = this.setState.bind(this);
+        
     }
 
+    //Query specific users to render in list
     professorQuery = () => {
         db.collection("users").where("instructor", "==", true)
         .get()
@@ -42,17 +46,55 @@ export default class Search extends Component {
                   });
             });
             
-            console.log('user data', this.state.professors);
             this.setState({
                 professors,
                 isLoading: false
             });
-            console.log('user data2,', this.state.professors)
         }.bind(this))
+
         .catch(function(error) {
             console.log("Error getting documents: ", error);
         });
     }
+
+    //Continue to professor detail
+
+
+
+    //FLATLIST STYLING - ADDING SOME COMPONENTS
+    renderSeparator = () => {
+        return (
+          <View
+            style={{
+              height: 1,
+              width: "86%",
+              backgroundColor: "#CED0CE",
+              marginLeft: "14%"
+            }}
+          />
+        );
+      };
+    
+      renderHeader = () => {
+        return <SearchBar placeholder="Search Professor.." lightTheme round />;
+      };
+    
+      renderFooter = () => {
+        if (!this.state.loading) return null;
+    
+        return (
+          <View
+            style={{
+              paddingVertical: 20,
+              borderTopWidth: 1,
+              borderColor: "#CED0CE"
+            }}
+          >
+            <ActivityIndicator animating size="large" />
+          </View>
+        );
+      };
+    
 
 
 
@@ -62,14 +104,14 @@ export default class Search extends Component {
     }
      
       render() {
+
         if (this.state.isLoading) {
             return <ImageBackground style = {styles.container} source = {background}><ActivityIndicator size="large" color="#FFF" /></ImageBackground>;
           }
         
         return (
            
-           
-           <List >
+           <List containerStyle={{ borderTopWidth: 0, borderBottomWidth: 0 }}>
            <FlatList
            data={this.state.professors}
            renderItem={({ item }) => (
@@ -79,11 +121,25 @@ export default class Search extends Component {
               subtitle={item.email}
               avatar={{ uri: item.proPic }}
               containerStyle={{ borderBottomWidth: 0 }}
+              onPress = { () => {
+                  profUID = item.key;
+                  this.setState({profID: profUID})
+                  //alert(this.state.profID);
+                  this.props.navigation.navigate('ProfessorDetails', 
+                  { 
+                    profID: this.state.profID
+                  });
+              }}
             />
           )}
+          keyExtractor={item => item.key}
+          ItemSeparatorComponent={this.renderSeparator}
+          ListHeaderComponent={this.renderHeader}
+          ListFooterComponent={this.renderFooter}
         />
 
          </List>
+         
             
            
         );

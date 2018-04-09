@@ -463,7 +463,7 @@ const styles = StyleSheet.create({
   },
 
   viewer: {
-    position: 'absolute',
+    //position: 'absolute',
     top: -730,
     right: -120,
     alignItems: 'flex-start',
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
   },
 
   leave: {
-    position: 'absolute',
+    //position: 'absolute',
     top: -730,
     left: -150,
     alignItems: 'flex-start',
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
   },
 
   switchCam: {
-    position: 'absolute',
+    //position: 'absolute',
     left: 120,
     alignItems: 'flex-end',
     justifyContent: 'flex-end',

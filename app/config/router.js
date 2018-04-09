@@ -10,6 +10,7 @@ import Me from '../screens/Me';
 import Name from '../screens/Welcome/Name';
 import Settings from '../screens/Settings';
 import Search from '../screens/Search';
+import ProfessorDetails from '../screens/ProfessorDetails';
 
 export const WelcomeStack = StackNavigator({
     Login: {
@@ -62,6 +63,28 @@ export const ClassSelection = StackNavigator({
 
 });
 
+
+export const SearchStack = StackNavigator({
+  Search: {
+      screen: Search,
+      navigationOptions: {
+          //gesturesEnabled: false,
+          header: null
+          
+      }
+  },
+
+  ProfessorDetails: {
+    screen: ProfessorDetails,
+    navigationOptions: {
+        //gesturesEnabled: false,
+        header: null
+        
+    }
+},
+
+})
+
 export const Profile = StackNavigator({
   Me: {
     screen: Me,
@@ -109,8 +132,8 @@ export const Tabs = TabNavigator({
       }
   },
 
-  Search: {
-    screen: Search,
+  SearchStack: {
+    screen: SearchStack,
     navigationOptions: {
         title: 'Search Professors',
         //gesturesEnabled: false,

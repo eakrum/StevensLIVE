@@ -20,6 +20,15 @@ let ableSwitchCam;
 let user;
 const instructor = "Xy2Mzu9kM9cJrWxfqYIi1cG52Dk1";
 
+
+//Callback way of getting users
+function clickGetUsers(roomID){
+  socket.emit('getUser2', roomID, function(socketIds){
+    console.log('SocketIds for users in same room as client: ', socketIds);
+  });
+}
+//************************************* */
+
 function join(roomID) {
     socket.emit('join', roomID, function(socketIds){
       console.log('join', socketIds);
@@ -34,7 +43,10 @@ function join(roomID) {
         } 
       }
     });
+<<<<<<< Updated upstream
     socket.emit('getUser', roomID);
+=======
+>>>>>>> Stashed changes
     socket.emit('counter', roomID);
  
   }
@@ -258,6 +270,7 @@ function join(roomID) {
     });
 
     function counter(viewers){
+<<<<<<< Updated upstream
       console.log('viewers', viewers)
       container.setState({viewerNumber:viewers});  
     }
@@ -265,6 +278,22 @@ function join(roomID) {
     function getUser(viewers){
       console.log('user: ', viewers);
     }
+=======
+      alert('Viewers: ', viewers);
+      
+    }
+
+    //Emit way of getting users
+    socket.on('getUserBySocketId', function(socketIds){
+      getUsersInRoom(socketIds);
+    });
+
+    function getUsersInRoom(socketIds){
+      console.log('These are the users by socket Ids in same room as client', socketIds);
+    }
+
+    //************************ */
+>>>>>>> Stashed changes
   
     socket.on('connect', function(data) {
       console.log('connect');
@@ -360,7 +389,11 @@ export default class ClassStream extends Component {
   backAlert = () => {
     InCallManager.stop();
     leave(this.state.roomID);
+<<<<<<< Updated upstream
     this.props.navigation.goBack();
+=======
+    this.props.navigation.navigate('ClassList');
+>>>>>>> Stashed changes
     socket.emit('log', 'leaving');
     // getLocalStream(true, function(stream) {
     //   if (localStream) {
@@ -381,8 +414,14 @@ export default class ClassStream extends Component {
     render() {
       this.switchCameraButton();
       console.log("Peers: ", pcPeers);
+<<<<<<< Updated upstream
       const localView = <RTCView streamURL={this.state.selfViewSrc} style = {styles.selfView}/>
       const camSwitchButton = <Icon iconStyle = {styles.switchCam} name="ios-reverse-camera-outline" size={30} type = 'ionicon' color= '#FFF' onPress = {this.switcher}/>
+=======
+      const localView = <RTCView streamURL={this.state.selfViewSrc} style={styles.selfView}/>
+      const camSwitchButton = <Button outline rounded large text="Switch Cam" onPress={this.switcher}
+        icon={<Icon name='tv' size={15} color='white'/>} />
+>>>>>>> Stashed changes
 
        return (
         <View style = {styles.container}>

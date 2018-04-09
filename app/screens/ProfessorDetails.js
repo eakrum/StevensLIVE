@@ -80,6 +80,7 @@ export default class ProfessorDetails extends Component {
 
 
   render() {
+      
     if (this.state.isLoading) {
       return <ImageBackground style = {styles.container} source = {background}><ActivityIndicator size="large" color="#FFF" /></ImageBackground>;
     }

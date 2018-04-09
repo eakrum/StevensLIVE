@@ -58,6 +58,10 @@ export default class Search extends Component {
     }
 
     //Continue to professor detail
+    professorDetail = () => {
+        this.props.navigation.navigate('ProfessorDetails', {
+            profID: profUID});
+    }
 
 
 
@@ -121,15 +125,14 @@ export default class Search extends Component {
               subtitle={item.email}
               avatar={{ uri: item.proPic }}
               containerStyle={{ borderBottomWidth: 0 }}
-              onPress = { () => {
+              onPress = 
+              { 
+                  () => {
                   profUID = item.key;
-                  this.setState({profID: profUID})
-                  //alert(this.state.profID);
-                  this.props.navigation.navigate('ProfessorDetails', 
-                  { 
-                    profID: this.state.profID
-                  });
-              }}
+                  this.professorDetail();
+                }
+                
+              }
             />
           )}
           keyExtractor={item => item.key}

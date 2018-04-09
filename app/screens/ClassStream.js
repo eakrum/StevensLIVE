@@ -342,7 +342,7 @@ export default class ClassStream extends Component {
 
     container = this;
     this.streamConfig();
-    
+    alert(socket.id);
   }
 
   static navigationOptions = {
@@ -388,9 +388,10 @@ export default class ClassStream extends Component {
         <View style = {styles.container}>
         <View style = {styles.buttonContainer}>
         <Icon iconStyle = {styles.leave} name="ios-close-circle-outline" size={27} type = 'ionicon' color= '#FFF' onPress = {this.backAlert}/>
-        <Icon iconStyle = {styles.viewer} name="ios-eye-outline" size={30} type = 'ionicon' color= '#FFF' onPress = {this.backAlert}/>
+        <Icon iconStyle = {styles.viewer} name="ios-eye-outline" size={30} type = 'ionicon' color= '#FFF'/>
         <Text style = {styles.callButton}> {this.state.viewerNumber} </Text>
-
+        </View>
+        <View style = {styles.buttonContainer2}>
         {ableSwitchCam ? camSwitchButton : null}
         </View>
         
@@ -427,7 +428,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     left: 0,
     right: 0,
-    bottom: 40,
+    top: 40,
+    zIndex: 5
+    
+  },
+
+  buttonContainer2: {
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+    left: 0,
+    right: 0,
+    bottom: 0,
     zIndex: 5
     
   },
@@ -463,8 +475,8 @@ const styles = StyleSheet.create({
   },
 
   viewer: {
-    //position: 'absolute',
-    top: -730,
+    position: 'absolute',
+    top: 20,
     right: -120,
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
@@ -474,18 +486,17 @@ const styles = StyleSheet.create({
 
   callButton: {
     position: 'absolute',
+    top: 25,
+    right: 33,
     alignItems: 'flex-start',
-    fontSize: 15,
-    top: -724,
-    right: 30,
-    color: '#FFF',
     justifyContent: 'flex-start',
-    zIndex: 5
+    color: '#FFF',
+    fontSize: 15,
   },
 
   leave: {
-    //position: 'absolute',
-    top: -730,
+    position: 'absolute',
+    top: 20,
     left: -150,
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
@@ -494,10 +505,11 @@ const styles = StyleSheet.create({
   },
 
   switchCam: {
-    //position: 'absolute',
+    position: 'absolute',
     left: 120,
     alignItems: 'flex-end',
     justifyContent: 'flex-end',
+    bottom: 20,
     zIndex: 5
 
   }

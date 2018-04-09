@@ -43,10 +43,7 @@ function join(roomID) {
         } 
       }
     });
-<<<<<<< Updated upstream
     socket.emit('getUser', roomID);
-=======
->>>>>>> Stashed changes
     socket.emit('counter', roomID);
  
   }
@@ -270,7 +267,6 @@ function join(roomID) {
     });
 
     function counter(viewers){
-<<<<<<< Updated upstream
       console.log('viewers', viewers)
       container.setState({viewerNumber:viewers});  
     }
@@ -278,22 +274,6 @@ function join(roomID) {
     function getUser(viewers){
       console.log('user: ', viewers);
     }
-=======
-      alert('Viewers: ', viewers);
-      
-    }
-
-    //Emit way of getting users
-    socket.on('getUserBySocketId', function(socketIds){
-      getUsersInRoom(socketIds);
-    });
-
-    function getUsersInRoom(socketIds){
-      console.log('These are the users by socket Ids in same room as client', socketIds);
-    }
-
-    //************************ */
->>>>>>> Stashed changes
   
     socket.on('connect', function(data) {
       console.log('connect');
@@ -349,6 +329,7 @@ export default class ClassStream extends Component {
       roomID: this.props.navigation.state.params.roomID,
       selfViewSrc: mySelf,
       remoteList: this.props.navigation.state.params.remoteList,
+      message: '',
       viewerNumber: '0'
     }
 
@@ -389,11 +370,7 @@ export default class ClassStream extends Component {
   backAlert = () => {
     InCallManager.stop();
     leave(this.state.roomID);
-<<<<<<< Updated upstream
     this.props.navigation.goBack();
-=======
-    this.props.navigation.navigate('ClassList');
->>>>>>> Stashed changes
     socket.emit('log', 'leaving');
     // getLocalStream(true, function(stream) {
     //   if (localStream) {
@@ -414,14 +391,8 @@ export default class ClassStream extends Component {
     render() {
       this.switchCameraButton();
       console.log("Peers: ", pcPeers);
-<<<<<<< Updated upstream
       const localView = <RTCView streamURL={this.state.selfViewSrc} style = {styles.selfView}/>
       const camSwitchButton = <Icon iconStyle = {styles.switchCam} name="ios-reverse-camera-outline" size={30} type = 'ionicon' color= '#FFF' onPress = {this.switcher}/>
-=======
-      const localView = <RTCView streamURL={this.state.selfViewSrc} style={styles.selfView}/>
-      const camSwitchButton = <Button outline rounded large text="Switch Cam" onPress={this.switcher}
-        icon={<Icon name='tv' size={15} color='white'/>} />
->>>>>>> Stashed changes
 
        return (
         <View style = {styles.container}>
@@ -431,6 +402,14 @@ export default class ClassStream extends Component {
         <Text style = {styles.callButton}> {this.state.viewerNumber} </Text>
         </View>
         <View style = {styles.buttonContainer2}>
+        <Input
+                   containerStyle = {styles.input}
+                   placeholder='enter text'
+                   placeholderTextColor = '#FFF'
+                   onChangeText={(text) => this.setState({message: text})} 
+                   value = {this.state.message}
+                   color = '#FFF'
+                   />
         {ableSwitchCam ? camSwitchButton : null}
         </View>
         
@@ -451,7 +430,7 @@ export default class ClassStream extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#43474f',
+    backgroundColor: '#000000',
     //flexDirection: 'row',
    
     
@@ -515,7 +494,7 @@ const styles = StyleSheet.create({
 
   viewer: {
     position: 'absolute',
-    top: 20,
+    top: 15,
     right: -120,
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
@@ -525,7 +504,7 @@ const styles = StyleSheet.create({
 
   callButton: {
     position: 'absolute',
-    top: 25,
+    top: 20,
     right: 33,
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
@@ -535,7 +514,7 @@ const styles = StyleSheet.create({
 
   leave: {
     position: 'absolute',
-    top: 20,
+    top: 15,
     left: -150,
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
@@ -550,8 +529,21 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     bottom: 20,
     zIndex: 5
-
-  }
+  },
+  input: {
+    borderWidth: 1,
+    width: 250,
+    borderRadius: 10,
+    height: 35,
+    borderColor: '#F2F3F4',
+    position: 'absolute',
+    bottom: 20,
+    left: -165,
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    zIndex: 5
+    
+  },
 
 
 });

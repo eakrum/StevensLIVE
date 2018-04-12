@@ -1,13 +1,14 @@
 'use strict';
 import React, { Component } from 'react';
-import { SafeAreaView, KeyboardAvoidingView ,TextInput  ,AppRegistry, Picker, StyleSheet, Text, TouchableHighlight, View, Image, ImageBackground, ListView, Platform, Dimensions, TouchableOpacity} from 'react-native';
+import { SafeAreaView, KeyboardAvoidingView ,TextInput  ,AppRegistry, Picker, StyleSheet, Text, TouchableHighlight, View, Image, ImageBackground, ListView, Platform, Dimensions, TouchableOpacity, FlatList, ScrollView} from 'react-native';
 import SocketIOClient from 'socket.io-client';
 import { RTCPeerConnection, RTCMediaStream, RTCIceCandidate, RTCSessionDescription, RTCView, MediaStreamTrack, getUserMedia, } from 'react-native-webrtc';
 //import FBSDK, { LoginManager, LoginButton } from 'react-native-fbsdk';
 import { StackNavigator, TabNavigator, NavigationActions } from 'react-navigation';
 import { SocialIcon, Icon, Button, Input } from 'react-native-elements';
 import InCallManager from 'react-native-incall-manager';
-import {firebase} from '../../services/firebase';
+import {firebase, db} from '../../services/firebase';
+import ReversedFlatList from 'react-native-reversed-flat-list';
 
 //const socket = SocketIOClient.connect('https://ec2-13-58-75-207.us-east-2.compute.amazonaws.com:4443/', {transports: ['websocket']}); 
 const pcPeers = {};
@@ -18,6 +19,8 @@ let localStream;
 let mySelf;
 let ableSwitchCam;
 let user;
+var temp = new Array();
+
 const instructor = "Xy2Mzu9kM9cJrWxfqYIi1cG52Dk1";
 
 
@@ -43,8 +46,9 @@ function join(roomID) {
         } 
       }
     });
-    socket.emit('getUser', roomID);
+    //socket.emit('getUser', roomID);
     socket.emit('counter', roomID);
+    socket.emit('matchUser', container.state.userName);
  
   }
   
@@ -266,10 +270,45 @@ function join(roomID) {
       counter(viewers);
     });
 
+    socket.on('message', function(message){
+      sendMessage(message);
+
+    });
+
+    socket.on('displayUser', function(userID){
+      console.log('user name is:', userID);
+      container.setState(prevState => ({
+        roomMessages: [...prevState.roomMessages, {userItem: userID + ' has joined!'}]
+      }))
+
+    });
+    
+
+
+    function sendMessage(message){
+      console.log('message:' , message);
+      const {messageItem} = ''
+      container.setState(prevState => ({
+        roomMessages: [...prevState.roomMessages, {messageItem: message}]
+      }))
+      console.log('new message: ', container.state.roomMessages);
+    
+    }
+    
+   
+
+    
+
+
+
+    
+    
+
     function counter(viewers){
       console.log('viewers', viewers)
       container.setState({viewerNumber:viewers});  
     }
+  
 
     function getUser(viewers){
       console.log('user: ', viewers);
@@ -315,9 +354,17 @@ function join(roomID) {
     function cameraSwitch(){
       localStream.getVideoTracks().forEach(track => { track._switchCamera();});
     }
+
+    
+
+    
+
+    
      
     
 export default class ClassStream extends Component { 
+
+  
 
  
   constructor(props){
@@ -329,11 +376,17 @@ export default class ClassStream extends Component {
       roomID: this.props.navigation.state.params.roomID,
       selfViewSrc: mySelf,
       remoteList: this.props.navigation.state.params.remoteList,
-      message: '',
-      viewerNumber: '0'
+      userName: firebase.auth().currentUser.email,
+      chatMessage: '',
+      viewerNumber: '0',
+      roomMessages: [],
+      placeholder: 'shafi gay'
+
     }
 
   }
+
+  
   switcher = () => {
     cameraSwitch(); 
   }
@@ -347,12 +400,12 @@ export default class ClassStream extends Component {
 
   componentDidMount(){
    
-    console.log('i am: ', mySelf);
-    console.log('u are:' ,localStream)
+    console.log('messages', this.state.roomMessages)
 
     container = this;
     this.streamConfig();
-    alert(socket.id);
+    //alert(socket.id);
+
   }
 
   static navigationOptions = {
@@ -388,9 +441,28 @@ export default class ClassStream extends Component {
     // });
     
   }
+
+  emitMessage = (event) => {
+    socket.emit('sendMessage', this.state.chatMessage);
+    this.setState({chatMessage: ''});
+  }
+
+  renderItem({item}) {
+    return (
+      <View style={styles.row}>
+        <Text style={styles.message}>{item.messageItem}</Text>
+        <Text style={styles.message}>{item.userItem}</Text>
+      </View>
+    );
+  }
+
+ 
+
+
+
     render() {
       this.switchCameraButton();
-      console.log("Peers: ", pcPeers);
+      //console.log("Peers: ", pcPeers);
       const localView = <RTCView streamURL={this.state.selfViewSrc} style = {styles.selfView}/>
       const camSwitchButton = <Icon iconStyle = {styles.switchCam} name="ios-reverse-camera-outline" size={30} type = 'ionicon' color= '#FFF' onPress = {this.switcher}/>
 
@@ -401,15 +473,26 @@ export default class ClassStream extends Component {
         <Icon iconStyle = {styles.viewer} name="ios-eye-outline" size={30} type = 'ionicon' color= '#FFF'/>
         <Text style = {styles.callButton}> {this.state.viewerNumber} </Text>
         </View>
+        <ScrollView style = {styles.chatBox}> 
+        <ReversedFlatList 
+          data={this.state.roomMessages} 
+          renderItem={this.renderItem} 
+        />
+
+        </ScrollView>
         <View style = {styles.buttonContainer2}>
+        
         <Input
-                   containerStyle = {styles.input}
-                   placeholder='enter text'
-                   placeholderTextColor = '#FFF'
-                   onChangeText={(text) => this.setState({message: text})} 
-                   value = {this.state.message}
-                   color = '#FFF'
-                   />
+          containerStyle = {styles.input}
+          placeholder='enter text'
+          placeholderTextColor = '#FFF'
+          onChangeText={(text) => this.setState({chatMessage: text})} 
+          value = {this.state.chatMessage}
+          color = '#FFF'
+          returnKeyType = 'send'
+          onSubmitEditing={(event) => this.emitMessage(event)}
+          //style={[newStyle]}
+          />
         {ableSwitchCam ? camSwitchButton : null}
         </View>
         
@@ -434,6 +517,31 @@ const styles = StyleSheet.create({
     //flexDirection: 'row',
    
     
+  },
+
+  row: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'transparent',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+  },
+  message: {
+    color: '#FFF',
+  },
+
+  chatBox: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    width: 250,
+    borderRadius: 10,
+    height: 200,
+    position: 'absolute',
+    bottom: 70,
+    left: 20,
+    zIndex: 5,
+    borderColor: 'transparent'
+
   },
 
   videoContainer: {

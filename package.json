@@ -20,6 +20,7 @@
     "react-native-md-textinput": "^2.0.4",
     "react-native-modal": "^5.0.1",
     "react-native-overlay": "^0.5.0",
+    "react-native-reversed-flat-list": "git+https://github.com/jevakallio/react-native-reversed-flat-list.git",
     "react-native-vector-icons": "^4.5.0",
     "react-native-video": "^2.0.0",
     "react-native-webrtc": "^1.58.3",

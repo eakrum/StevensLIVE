@@ -18,7 +18,6 @@ let container;
 let localStream;
 let mySelf;
 let ableSwitchCam;
-let user;
 var temp = new Array();
 
 const instructor = "Xy2Mzu9kM9cJrWxfqYIi1cG52Dk1";
@@ -48,7 +47,7 @@ function join(roomID) {
     });
     //socket.emit('getUser', roomID);
     socket.emit('counter', roomID);
-    socket.emit('matchUser', container.state.userName);
+    socket.emit('matchUser', container.state.user);
  
   }
   
@@ -376,7 +375,7 @@ export default class ClassStream extends Component {
       roomID: this.props.navigation.state.params.roomID,
       selfViewSrc: mySelf,
       remoteList: this.props.navigation.state.params.remoteList,
-      userName: firebase.auth().currentUser.email,
+      user: this.props.navigation.state.params.user,
       chatMessage: '',
       viewerNumber: '0',
       roomMessages: [],
@@ -401,6 +400,7 @@ export default class ClassStream extends Component {
   componentDidMount(){
    
     console.log('messages', this.state.roomMessages)
+    console.log('the user is', this.state.user)
 
     container = this;
     this.streamConfig();

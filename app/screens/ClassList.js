@@ -1,12 +1,12 @@
 'use strict';
 import React, { Component } from 'react';
-import { StatusBar,Picker, SafeAreaView, KeyboardAvoidingView ,TextInput, AppRegistry, StyleSheet, Text, TouchableHighlight, View, Image, ImageBackground, ListView, Platform, Dimensions, TouchableOpacity} from 'react-native';
+import { StatusBar,Picker, SafeAreaView, KeyboardAvoidingView ,TextInput, AppRegistry, StyleSheet, Text, TouchableHighlight, View, Image, ImageBackground, ListView, Platform, Dimensions, TouchableOpacity, ActivityIndicator} from 'react-native';
 import SocketIOClient from 'socket.io-client';
 import { RTCPeerConnection, RTCMediaStream, RTCIceCandidate, RTCSessionDescription, RTCView, MediaStreamTrack, getUserMedia, } from 'react-native-webrtc';
 import { StackNavigator, TabNavigator, NavigationActions } from 'react-navigation';
 import { SocialIcon, Icon, Button, Input } from 'react-native-elements';
 import InCallManager from 'react-native-incall-manager';
-import {firebase} from '../../services/firebase';
+import {firebase, db} from '../../services/firebase';
 
 
 const socket = SocketIOClient.connect('https://react-native-webrtc.herokuapp.com', {transports: ['websocket']}); 
@@ -15,6 +15,10 @@ const configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
 
 let container;
 let localStream;
+let _firstName;
+let _lastName;
+let _proPic;
+let _user;
 
 const logo = require('../../images/one.jpg')
 
@@ -31,11 +35,14 @@ export default class ClassList extends Component {
         this.state = {
           videoURL: null,
           isFront: true,
+          isLoading: true,
           info: 'Initializing',
           status: 'init',
           roomID: 'BIO281A',
           selfViewSrc: null,
           remoteList: {},
+          user: '',
+          userUID: firebase.auth().currentUser.uid,
           textRoomConnected: false,
           textRoomData: [],
           textRoomValue: '',
@@ -43,6 +50,27 @@ export default class ClassList extends Component {
         }
     
       }
+
+      fetchData = () => {
+        var docRef = db.collection("users").doc(this.state.userUID);
+      
+        docRef.get().then(function(doc){
+         _firstName = doc.data().firstName;
+         _lastName = doc.data().lastName;
+         _proPic = doc.data().proPic
+
+         _user = _firstName + ' ' + _lastName; 
+      
+         this.setState({
+           isLoading: false,
+           user: _user
+          });
+
+          console.log('user achieved1: ' , this.state.user)
+          
+        }.bind(this))
+      
+       }
 
      
       selectClass = () => {
@@ -53,7 +81,11 @@ export default class ClassList extends Component {
           isFront: this.state.isFront, 
           info: this.state.info, 
           selfViewSrc: this.state.selfViewSrc,
-          status: this.state.status} );
+          status: this.state.status,
+          user: this.state.user,
+
+
+        });
 
       }
       
@@ -63,6 +95,7 @@ export default class ClassList extends Component {
       componentDidMount() {
         
           container = this;
+          this.fetchData();
           //const {navigate} = this.props.navigation;
     
         }
@@ -79,6 +112,9 @@ export default class ClassList extends Component {
         //onPress={this.onPress.bind(this)}
       //ACTUALLY SHOW THE VIDEO HERE AND DO STYLING
       render() {
+        if (this.state.isLoading) {
+          return <ImageBackground style = {styles.background} source = {logo}><ActivityIndicator size="large" color="#FFF" /></ImageBackground>;
+        }
         
         //const {navigate} = this.props.navigation;
         return (

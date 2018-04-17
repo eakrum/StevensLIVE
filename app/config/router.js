@@ -45,7 +45,13 @@ export const ClassSelection = StackNavigator({
     screen: ClassList,
     navigationOptions: {
       tabBarIcon: ({ tintColor }) => <Icon name="user" size={25} type = 'feather' color={tintColor} />, 
-      header: null
+      title: 'Featured Classes',
+      headerLeft: null,
+      headerStyle: {
+        backgroundColor: '#43474f',
+        height: 40,
+
+      },
       }
      
   },

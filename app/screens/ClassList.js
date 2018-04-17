@@ -1,17 +1,22 @@
 'use strict';
+
+
 import React, { Component } from 'react';
-import { StatusBar,Picker, SafeAreaView, KeyboardAvoidingView ,TextInput, AppRegistry, StyleSheet, Text, TouchableHighlight, View, Image, ImageBackground, ListView, Platform, Dimensions, TouchableOpacity, ActivityIndicator} from 'react-native';
-import SocketIOClient from 'socket.io-client';
-import { RTCPeerConnection, RTCMediaStream, RTCIceCandidate, RTCSessionDescription, RTCView, MediaStreamTrack, getUserMedia, } from 'react-native-webrtc';
-import { StackNavigator, TabNavigator, NavigationActions } from 'react-navigation';
-import { SocialIcon, Icon, Button, Input } from 'react-native-elements';
-import InCallManager from 'react-native-incall-manager';
+import {
+  Text,
+  View,
+  ScrollView,
+  ImageBackground,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+} from 'react-native';
+import { Card,List, ListItem, Button, Icon, Avatar} from 'react-native-elements';
 import {firebase, db} from '../../services/firebase';
 
+const background = require('../../images/one.jpg')
 
-const socket = SocketIOClient.connect('https://react-native-webrtc.herokuapp.com', {transports: ['websocket']}); 
-const pcPeers = {};
-const configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
+const SCREEN_WIDTH = 375; // Width for standard iphones 6,7,8
 
 let container;
 let localStream;
@@ -20,222 +25,262 @@ let _lastName;
 let _proPic;
 let _user;
 
-const logo = require('../../images/one.jpg')
+var items = new Array();
 
-const instructor  =  "mrr2kRxJhmUPWXxrmEtdx8On2GH2";
+class ClassList extends Component {
 
 
+  constructor(props){
+    super(props)
+    this.state = {
+      classes: [],
+      isLoading: true,
+      videoURL: null,
+      isFront: true,
+      info: 'Initializing',
+      status: 'init',
+      roomID: 'BIO281A',
+      selfViewSrc: null,
+      remoteList: {},
+      user: '',
+      userUID: firebase.auth().currentUser.uid,
+    }
 
-export default class ClassList extends Component {
+  }
+
+  classQuery = () => {
+    var docRef = db.collection("users").doc(this.state.userUID);
+
+    docRef.get().then(function(doc){
+      _firstName = doc.data().firstName;
+      _lastName = doc.data().lastName;
+      _proPic = doc.data().proPic
+   
+      _user = _firstName + ' ' + _lastName; 
+   
+      this.setState({
+
+        user: _user
+       });
+   
+       console.log('user achieved1: ' , this.state.user)
+       
+     }.bind(this))
     
-      constructor(props){
-        super(props)
     
-        //this.onPress = this.onPress.bind(this);
-        this.state = {
-          videoURL: null,
-          isFront: true,
-          isLoading: true,
-          info: 'Initializing',
-          status: 'init',
-          roomID: 'BIO281A',
-          selfViewSrc: null,
-          remoteList: {},
-          user: '',
-          userUID: firebase.auth().currentUser.uid,
-          textRoomConnected: false,
-          textRoomData: [],
-          textRoomValue: '',
-          PickerValue: '',
-        }
-    
-      }
+    db.collection("classes").where('streaming', '==', true).get()
+    .then(function(querySnapshot) {
+        
+        querySnapshot.forEach(function(doc) {
+            const {title, caption, photo, roomID} = doc.data();
+            items.push({
+                key: doc.id,
+                doc, // DocumentSnapshot
+                title,
+                caption,
+                photo,
+                roomID
+              });
+        });
+        
+        this.setState({
+            classes: items,
+            isLoading: false
+        });
+        console.log('classes array:' , this.state.classes)
+        console.log('items array: ' , items )
+    }.bind(this))
 
-      fetchData = () => {
-        var docRef = db.collection("users").doc(this.state.userUID);
-      
-        docRef.get().then(function(doc){
-         _firstName = doc.data().firstName;
-         _lastName = doc.data().lastName;
-         _proPic = doc.data().proPic
+    .catch(function(error) {
+        console.log("Error getting documents: ", error);
+    });
+}
 
-         _user = _firstName + ' ' + _lastName; 
-      
-         this.setState({
-           isLoading: false,
-           user: _user
-          });
 
-          console.log('user achieved1: ' , this.state.user)
-          
-        }.bind(this))
-      
-       }
-
-     
-      selectClass = () => {
-        this.props.navigation.navigate('ClassStream',  
-        { roomID: this.state.roomID, 
+renderItem = ({item}) => {
+  return (
+    <Card 
+    containerStyle={{ width: SCREEN_WIDTH * 0.90 }}
+    title={item.title}
+    titleStyle = {{color: '#FFF'}}
+    image={{uri: item.photo}}>
+    <Text style={{marginBottom: 10, color: '#FFF'}}>
+    {item.caption}
+    </Text>
+    <Button 
+    icon={
+      <Icon
+      name='ios-play'
+      type = 'ionicon'
+      size={15}
+      color='white'
+      />
+    }
+    text = 'View Now!'
+    backgroundColor = '#FFF'
+    textStyle = {{fontWeight: 'bold'}}
+    onPress = {() => {
+      this.props.navigation.navigate('ClassStream',  
+        { roomID: item.roomID, 
           remoteList: this.state.remoteList, 
           videoURL: this.state.videoURL, 
           isFront: this.state.isFront, 
           info: this.state.info, 
           selfViewSrc: this.state.selfViewSrc,
           status: this.state.status,
-          user: this.state.user,
-
-
+          user: this.state.user
         });
+      }
+        
+}
+    buttonStyle={styles.loginButton} /> 
 
-      }
-      
-      //DECLARE EACH STATE TO PASS DATA THROUGH LATER
-     
-    
-      componentDidMount() {
-        
-          container = this;
-          this.fetchData();
-          //const {navigate} = this.props.navigation;
-    
-        }
-    
-       
-        
-        /*style={{height: 40, textAlign: 'center',}}
-        ref='roomID'
-        autoCorrect={false}
-        placeholder={"Enter room"} placeholderTextColor={"#888"} 
-        onChangeText={(text) => this.setState({roomID: text})}
-        value={this.state.roomID}*/
-    
-        //onPress={this.onPress.bind(this)}
-      //ACTUALLY SHOW THE VIDEO HERE AND DO STYLING
-      render() {
-        if (this.state.isLoading) {
-          return <ImageBackground style = {styles.background} source = {logo}><ActivityIndicator size="large" color="#FFF" /></ImageBackground>;
-        }
-        
-        //const {navigate} = this.props.navigation;
-        return (
-           
-           <ImageBackground source = {logo} style = {styles.background}>
-            <StatusBar barStyle="light-content"/>
-            
-          
-              <Text style={styles.titleText}>CHOOSE A CLASS</Text>
-              <Picker
-                  itemStyle={{color: '#F0FFFF'}}
-                  style={{width:'80%'}}
-                  selectedValue={this.state.roomID}
-                  onValueChange={(itemValue, itemIndex) => this.setState({roomID : itemValue})}>
-                  <Picker.Item label = "BIO 281A: Biology and Biotechnology" value = "BIO281A"/>
-                  <Picker.Item label = "BIO 281B: Biology and Biotechnology" value = "BIO281B"/>
-                  <Picker.Item label = "CH 116A: General Chemistry II" value = "CH116A"/>
-                  <Picker.Item label = "CH 116B: General Chemistry II" value = "CH116B"/>
-                  <Picker.Item label = "CH 116C: General Chemistry II" value = "CH116C"/>
-                  <Picker.Item label = "CH 116D: General Chemistry II" value = "CH116D"/>
-                  <Picker.Item label = "CH 116E: General Chemistry II" value = "CH116E"/>
-                  <Picker.Item label = "CH 116F: General Chemistry II" value = "CH116F"/>
-                  <Picker.Item label = "CH 116G: General Chemistry II" value = "CH116G"/>
-                  <Picker.Item label = "MA 123A: Series, Vectors, Functions, and Surfaces" value = "MA123A"/>
-                  <Picker.Item label = "MA 123B: Series, Vectors, Functions, and Surfaces" value = "MA123B"/>
-                  <Picker.Item label = "MA 123C: Series, Vectors, Functions, and Surfaces" value = "MA123C"/>
-                  <Picker.Item label = "MA 123D: Series, Vectors, Functions, and Surfaces" value = "MA123D"/>
-                  <Picker.Item label = "MA 123E: Series, Vectors, Functions, and Surfaces" value = "MA123E"/>
-                  <Picker.Item label = "MA 123F: Series, Vectors, Functions, and Surfaces" value = "MA123F"/>
-                  <Picker.Item label = "MA 123G: Series, Vectors, Functions, and Surfaces" value = "MA123G"/>
-                  <Picker.Item label = "MA 123H: Series, Vectors, Functions, and Surfaces" value = "MA123H"/>
-                  <Picker.Item label = "MA 123I: Series, Vectors, Functions, and Surfaces" value = "MA123I"/>
-                  <Picker.Item label = "PEP 111A: Mechanics" value = "PEP111A"/>
-                  <Picker.Item label = "PEP 111B: Mechanics" value = "PEP111B"/>
-                  <Picker.Item label = "PEP 111C: Mechanics" value = "PEP111C"/>
-                  <Picker.Item label = "PEP 111D: Mechanics" value = "PEP111D"/>
-                  <Picker.Item label = "PEP 111E: Mechanics" value = "PEP111E"/>
-                  <Picker.Item label = "PEP 111S: Mechanics" value = "PEP111S"/>
-              </Picker>
-              <View style={{padding:40}}>
-              <Button 
-              outline 
-              rounded 
-              large 
-              text="Join Class" 
-              icon={
-                <Icon
-                name='tv'
-                size={15}
-                color='white'
-                />
-                } 
-              onPress ={this.selectClass}
-              />
-              
-              </View>
-            
-          </ImageBackground>
-           
-        );
-    
-      }
-    
-    
-    
+  </Card>
+  );
+}
+
+componentWillMount() {
+  this.classQuery();
 }
 
 
+  render() {
+    if (this.state.isLoading) {
+      return <ImageBackground style = {styles.container} source = {background}><ActivityIndicator size="large" color="#FFF" /></ImageBackground>;
+    }
+    return (
+      <ImageBackground style = {styles.container} source = {background}>
+      <ScrollView style = {styles.contentContainer}>
+      <FlatList
+        data = {this.state.classes}
+        renderItem = {this.renderItem}
+      />
+      
+      </ScrollView>
+      </ImageBackground>
+      
+    );
+  }
+}
+
 const styles = StyleSheet.create({
-  background: {
+  container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-
-
-
-
-  },
-  button: {
-    //backgroundColor:'#1496BB',
-    //borderRadius:15,
-    overflow: 'hidden',
-    paddingHorizontal: 30,
+    backgroundColor: '#FFFFFF',
     
-
   },
 
-  backgroundImage: {
+  contentContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    
 
   },
-  backgroundImage1: {
+  
+  loginContainer: {
     flex: 1,
+    flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center',
-
+    alignItems: 'center'
   },
-  selfView: {
-    width: 200,
-    height: 150,
+
+
+  
+  loginButton: {
+    //justifyContent: 'flex-start',
+    backgroundColor: "#3BA9FF",
+    width: 300,
+    height: 45,
+    borderColor: "transparent",
+    borderWidth: 0,
+
+  }, 
+  socialButton: {
+    alignItems: 'center',
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-  },
-  remoteView: {
-    position: "absolute",
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
-   
-    resizeMode: 'cover',
+    width: 200,
+    height: 40,
+    bottom: 120,
 
   },
 
-  titleText: {
-    fontSize: 30,
-    fontWeight: "bold",
-    backgroundColor: 'transparent',
-    color: '#F0FFFF',
+
+  innerContainer: {
+   padding: 10
+
+  },
+  
+  textinputStyle: {
+    alignItems: 'center',
+    //position: 'absolute',
+    width: 200,
+    height: 40,
+    borderColor: '#3BFF91',
+    paddingBottom: 10,
+    top: 250
+  },
+
+  modalButton: {
+    justifyContent: 'flex-start',
+    top: 275,
+    alignItems: 'center',
+    //backgroundColor: '#DDDDDD',
+   // padding: 10
+  
+
+  },
+
+  buttonContainer: {
+    alignItems: 'center',
+    flexDirection: 'column',
+    top: 35
+  },
+
+  input: {
+    borderWidth: 1,
+    width: 300,
+    borderColor: '#F2F3F4',
+    margin: 10,
+    height: 50,
+    paddingLeft: 10,
+    
+  },
+
+  miniHeader: {
+    fontWeight: '900', 
+    color: '#909497', 
+    fontSize: 15,
+    justifyContent: 'flex-start',
+    marginRight: 225,
+    marginTop: 85,
+    paddingBottom: 5
+
+  },
+
+  header: {
+
+    fontWeight: '900', 
+    color: '#FFF', 
+    fontSize: 35,
+    marginRight: 60,
+    paddingBottom: 10,
+
+  },
+
+  avatar: {
+    position: 'absolute',
+    top: 15,
+    left: -150,
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    zIndex: 5
+
+  },
+
+  contentContainer: {
+    flex: 1,
   }
 });
+
+export default ClassList;
 

@@ -379,8 +379,6 @@ export default class ClassStream extends Component {
       chatMessage: '',
       viewerNumber: '0',
       roomMessages: [],
-      placeholder: 'shafi gay'
-
     }
 
   }

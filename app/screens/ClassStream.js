@@ -23,14 +23,6 @@ var temp = new Array();
 const instructor = "Xy2Mzu9kM9cJrWxfqYIi1cG52Dk1";
 
 
-//Callback way of getting users
-function clickGetUsers(roomID){
-  socket.emit('getUser2', roomID, function(socketIds){
-    console.log('SocketIds for users in same room as client: ', socketIds);
-  });
-}
-//************************************* */
-
 function join(roomID) {
     socket.emit('join', roomID, function(socketIds){
       console.log('join', socketIds);
@@ -156,33 +148,7 @@ function join(roomID) {
         socket.emit('log', "nope");
         socket.emit('exchange', {'to': socketId, 'setup': "??" });
       }
-      
-      /*function createDataChannel() {
-        if (pc.textDataChannel) {
-          return;
-        }
-        const dataChannel = pc.createDataChannel("text");
-    
-        dataChannel.onerror = function (error) {
-          //console.log("dataChannel.onerror", error);
-        };
-    
-        dataChannel.onmessage = function (event) {
-          //console.log("dataChannel.onmessage:", event.data);
-          container.receiveTextData({user: socketId, message: event.data});
-        };
-    
-        dataChannel.onopen = function () {
-          //console.log('dataChannel.onopen');
-          container.setState({textRoomConnected: true});
-        };
-    
-        dataChannel.onclose = function () {
-          //console.log("dataChannel.onclose");
-        };
-    
-        pc.textDataChannel = dataChannel;
-      }*/
+   
       return pc;
     }
   
@@ -219,7 +185,7 @@ function join(roomID) {
       }
     }
   
-
+    //TODO : Get rid of this, old leave sucks
     function leave(roomID) {
       //container.setState({leftRoom: true});
       socket.emit('leave', roomID, function(socketIds){
@@ -257,13 +223,53 @@ function join(roomID) {
     });
     socket.emit('log', 'leaving');
   }
+
+  // (1) Emit Leave event to server
+  function leaveToServer2(){
+    socket.emit('leave2', function(){
+      console.log('Leaving Room 2');
+    });
+  }
+
+  // (4) New Leave using server logic
+  function leaveEveryone(socketId){
+    console.log('leaveEveryone: ', socketId);
+    
+    //Check to see if socketId is in the list
+    var foundSocketId = socketId in pcPeers;
+    if (foundSocketId){
+
+      //If it is in list, we can close the RCTPeerConnection and delete it in peers
+      const pc = pcPeers[socketId];
+      pc.close();
+      delete pcPeers[socketId];
+
+      //Update the remoteList
+      const remoteList = container.state.remoteList;
+      delete remoteList[socketId];
+      container.setState( {remoteList: remoteList});
+
+
+    }
+    else {
+      //If it isn't in the peers list, continue normally
+      console.log('Socket ID not found in pcPeers, finished');
+    }
+  }
+
   
+  //Event Listeners
     socket.on('exchange', function(data){
       exchange(data);
     });
     socket.on('leave', function(socketId){
       leave(socketId);
     });
+
+    // (3) Spawns leaveEveryone on each client in room
+    socket.on('leaveEveryone', function(socketId){
+      leaveEveryone(socketId);
+    })
 
     socket.on('viewers', function(viewers){
       counter(viewers);
@@ -293,14 +299,6 @@ function join(roomID) {
       console.log('new message: ', container.state.roomMessages);
     
     }
-    
-   
-
-    
-
-
-
-    
     
 
     function counter(viewers){
@@ -418,26 +416,11 @@ export default class ClassStream extends Component {
     }
   }
 
-  backAlert = () => {
+  leaveRoom = () => {
     InCallManager.stop();
-    leave(this.state.roomID);
+    leaveToServer2();
     this.props.navigation.goBack();
     socket.emit('log', 'leaving');
-    // getLocalStream(true, function(stream) {
-    //   if (localStream) {
-    //     for (const id in pcPeers) {
-    //       const pc = pcPeers[id];
-          
-    //       pc && pc.removeStream(localStream);
-          
-          
-    //     }
-        
-    //     localStream.release();
-    //   }
-
-    // });
-    
   }
 
   emitMessage = (event) => {
@@ -467,7 +450,7 @@ export default class ClassStream extends Component {
        return (
         <View style = {styles.container}>
         <View style = {styles.buttonContainer}>
-        <Icon iconStyle = {styles.leave} name="ios-close-circle-outline" size={27} type = 'ionicon' color= '#FFF' onPress = {this.backAlert}/>
+        <Icon iconStyle = {styles.leave} name="ios-close-circle-outline" size={27} type = 'ionicon' color= '#FFF' onPress = {this.leaveRoom}/>
         <Icon iconStyle = {styles.viewer} name="ios-eye-outline" size={30} type = 'ionicon' color= '#FFF'/>
         <Text style = {styles.callButton}> {this.state.viewerNumber} </Text>
         </View>

@@ -63,7 +63,6 @@ class ClassList extends Component {
         user: _user
        });
    
-       console.log('user achieved1: ' , this.state.user)
        
      }.bind(this))
     
@@ -87,8 +86,6 @@ class ClassList extends Component {
             classes: items,
             isLoading: false
         });
-        console.log('classes array:' , this.state.classes)
-        console.log('items array: ' , items )
     }.bind(this))
 
     .catch(function(error) {

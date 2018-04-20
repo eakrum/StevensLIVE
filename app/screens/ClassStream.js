@@ -10,7 +10,6 @@ import InCallManager from 'react-native-incall-manager';
 import {firebase, db} from '../../services/firebase';
 import ReversedFlatList from 'react-native-reversed-flat-list';
 
-//const socket = SocketIOClient.connect('https://ec2-13-58-75-207.us-east-2.compute.amazonaws.com:4443/', {transports: ['websocket']}); 
 const pcPeers = {};
 const configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
 const socket = SocketIOClient.connect('https://ec2-13-58-75-207.us-east-2.compute.amazonaws.com:4443/', {transports: ['websocket']}); 
@@ -20,14 +19,13 @@ let mySelf;
 let ableSwitchCam;
 var temp = new Array();
 
+
 const instructor = "Xy2Mzu9kM9cJrWxfqYIi1cG52Dk1";
 
 
 function join(roomID) {
     socket.emit('join', roomID, function(socketIds){
-      console.log('join', socketIds);
       for (const i in socketIds) {
-        console.log('hi');
         const socketId = socketIds[i];
         if (instructor == firebase.auth().currentUser.uid){
           createPC(socketId, true);
@@ -51,7 +49,6 @@ function join(roomID) {
       // uncomment it if you want to specify
       if (Platform.OS === 'ios') {
         MediaStreamTrack.getSources(sourceInfos => {
-          console.log("sourceInfos: ", sourceInfos);
     
           for (const i = 0; i < sourceInfos.length; i++) {
             const sourceInfo = sourceInfos[i];
@@ -74,8 +71,6 @@ function join(roomID) {
           optional: (videoSourceId ? [{sourceId: videoSourceId}] : []),
         }
       }, function (stream) {
-        console.log('getUserMedia success', stream);
-        console.log('HELLO: ', stream._tracks[1]);
         callback(stream);
       }, logError);
       
@@ -84,11 +79,8 @@ function join(roomID) {
     function createPC(socketId, isOffer) {
       const pc = new RTCPeerConnection(configuration);
       pcPeers[socketId] = pc;
-      console.log("PCPEERS1: ", pcPeers);
-      console.log('PCpeersSocketID: ', pcPeers[socketId]);
     
       pc.onicecandidate = function (event) {
-        //console.log('onicecandidate', event.candidate);
         if (event.candidate) {
           socket.emit('exchange', {'to': socketId, 'candidate': event.candidate });
         }
@@ -96,23 +88,19 @@ function join(roomID) {
     
       function createOffer() {
         pc.createOffer(function(desc) {
-          //console.log('createOffer', desc);
           pc.setLocalDescription(desc, function () {
-            //console.log('setLocalDescription', pc.localDescription);
             socket.emit('exchange', {'to': socketId, 'sdp': pc.localDescription });
           }, logError);
         }, logError);
       }
     
       pc.onnegotiationneeded = function () {
-        //console.log('onnegotiationneeded');
         if (isOffer) {
           createOffer();
         }
       }
     
       pc.oniceconnectionstatechange = function(event) {
-        //console.log('oniceconnectionstatechange', event.target.iceConnectionState);
         if (event.target.iceConnectionState === 'completed') {
           setTimeout(() => {
             getStats();
@@ -123,13 +111,11 @@ function join(roomID) {
         }
       };
       pc.onsignalingstatechange = function(event) {
-        //console.log('onsignalingstatechange', event.target.signalingState);
       };
     
       pc.onaddstream = function (event) {
         
         
-        console.log('onaddstream', event.stream);
         container.setState({info: 'One peer join!'});
     
         const remoteList = container.state.remoteList;
@@ -137,7 +123,6 @@ function join(roomID) {
         container.setState({ remoteList: remoteList });
       };
       pc.onremovestream = function (event) {
-        console.log('onremovestream', event.stream);
       };
 
       if(instructor == firebase.auth().currentUser.uid){
@@ -166,13 +151,10 @@ function join(roomID) {
       }
     
       if (data.sdp) {
-        //console.log('exchange sdp', data);
         pc.setRemoteDescription(new RTCSessionDescription(data.sdp), function () {
           if (pc.remoteDescription.type == "offer")
             pc.createAnswer(function(desc) {
-              //console.log('createAnswer', desc);
               pc.setLocalDescription(desc, function () {
-                //console.log('setLocalDescription', pc.localDescription);
                 socket.emit('exchange', {'to': fromId, 'sdp': pc.localDescription });
               }, logError);
             }, logError);
@@ -180,7 +162,6 @@ function join(roomID) {
       } else if (data.setup) {
         // do nothing
       } else {
-        //console.log('exchange candidate', data);
         pc.addIceCandidate(new RTCIceCandidate(data.candidate));
       }
     }
@@ -194,17 +175,11 @@ function join(roomID) {
           numConnections = numConnections + 1;
         }
         numConnections = numConnections - 1;
-        console.log(numConnections);
        
           for (const i in socketIds){
             if (numConnections > 0){
             const socketId = socketIds[i];
-            console.log('leave0', socketIds[i]);
-            console.log('leave1', socketIds);
-            console.log('leave2', socketId);
             const pc = pcPeers[socketId];
-            console.log('leave3', pcPeers);
-            console.log('leave4', pcPeers[socketId]);
           //const viewIndex = pc.viewIndex;
             pc.close();
             delete pcPeers[socketId];
@@ -214,10 +189,7 @@ function join(roomID) {
             container.setState({ remoteList: remoteList });
             numConnections = numConnections - 1;
 
-          } else {
-            console.log('leaving', socketIds);
-            console.log('done');
-          }
+          } 
         }
         
     });
@@ -227,13 +199,11 @@ function join(roomID) {
   // (1) Emit Leave event to server
   function leaveToServer2(){
     socket.emit('leave2', function(){
-      console.log('Leaving Room 2');
     });
   }
 
   // (4) New Leave using server logic
   function leaveEveryone(socketId){
-    console.log('leaveEveryone: ', socketId);
     
     //Check to see if socketId is in the list
     var foundSocketId = socketId in pcPeers;
@@ -253,8 +223,9 @@ function join(roomID) {
     }
     else {
       //If it isn't in the peers list, continue normally
-      console.log('Socket ID not found in pcPeers, finished');
     }
+    const roomID = container.state.roomID;
+    socket.emit('counter', roomID);
   }
 
   
@@ -281,7 +252,6 @@ function join(roomID) {
     });
 
     socket.on('displayUser', function(userID){
-      console.log('user name is:', userID);
       container.setState(prevState => ({
         roomMessages: [...prevState.roomMessages, {userItem: userID + ' has joined!'}]
       }))
@@ -291,34 +261,24 @@ function join(roomID) {
 
 
     function sendMessage(message){
-      console.log('message:' , message);
       const {messageItem} = ''
       container.setState(prevState => ({
         roomMessages: [...prevState.roomMessages, {messageItem: message}]
       }))
-      console.log('new message: ', container.state.roomMessages);
     
     }
     
 
     function counter(viewers){
-      console.log('viewers', viewers)
       container.setState({viewerNumber:viewers});  
     }
   
 
-    function getUser(viewers){
-      console.log('user: ', viewers);
-    }
   
     socket.on('connect', function(data) {
-      console.log('connect');
       getLocalStream(true, function(stream) {
         localStream = stream;
-        console.log('LOCALSTREAM: ', localStream._tracks);
         mySelf = stream.toURL();
-        console.log('myself video', mySelf._tracks)
-        console.log('Myself: ', mySelf);
         //container.setState({selfViewSrc: stream.toURL()});
         container.setState({status: 'ready', info: 'Please enter or create room ID'});
       });
@@ -341,9 +301,7 @@ function join(roomID) {
       const pc = pcPeers[Object.keys(pcPeers)[0]];
       if (pc.getRemoteStreams()[0] && pc.getRemoteStreams()[0].getAudioTracks()[0]) {
         const track = pc.getRemoteStreams()[0].getAudioTracks()[0];
-        console.log('track', track);
         pc.getStats(track, function(report) {
-          console.log('getStats report', report);
         }, logError);
       }
     }
@@ -395,8 +353,6 @@ export default class ClassStream extends Component {
 
   componentDidMount(){
    
-    console.log('messages', this.state.roomMessages)
-    console.log('the user is', this.state.user)
 
     container = this;
     this.streamConfig();
@@ -443,7 +399,6 @@ export default class ClassStream extends Component {
 
     render() {
       this.switchCameraButton();
-      //console.log("Peers: ", pcPeers);
       const localView = <RTCView streamURL={this.state.selfViewSrc} style = {styles.selfView}/>
       const camSwitchButton = <Icon iconStyle = {styles.switchCam} name="ios-reverse-camera-outline" size={30} type = 'ionicon' color= '#FFF' onPress = {this.switcher}/>
 

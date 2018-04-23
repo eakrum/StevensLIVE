@@ -5,7 +5,7 @@ import SocketIOClient from 'socket.io-client';
 import { RTCPeerConnection, RTCMediaStream, RTCIceCandidate, RTCSessionDescription, RTCView, MediaStreamTrack, getUserMedia, } from 'react-native-webrtc';
 //import FBSDK, { LoginManager, LoginButton } from 'react-native-fbsdk';
 import { StackNavigator, TabNavigator, NavigationActions } from 'react-navigation';
-import { SocialIcon, Icon, Button, Input } from 'react-native-elements';
+import { SocialIcon, Icon, Button, Input, Avatar } from 'react-native-elements';
 import InCallManager from 'react-native-incall-manager';
 import {firebase, db} from '../../services/firebase';
 import ReversedFlatList from 'react-native-reversed-flat-list';
@@ -18,6 +18,7 @@ let localStream;
 let mySelf;
 let ableSwitchCam;
 var temp = new Array();
+
 
 
 const instructor = "Xy2Mzu9kM9cJrWxfqYIi1cG52Dk1";
@@ -246,25 +247,27 @@ function join(roomID) {
       counter(viewers);
     });
 
-    socket.on('message', function(message){
-      sendMessage(message);
+    socket.on('message', function([message]){
+      sendMessage([message]);
 
     });
 
     socket.on('displayUser', function(userID){
       container.setState(prevState => ({
-        roomMessages: [...prevState.roomMessages, {userItem: userID + ' has joined!'}]
+        roomMessages: [...prevState.roomMessages, {userItem: userID + ' joined!'}]
       }))
 
     });
     
 
 
-    function sendMessage(message){
-      const {messageItem} = ''
+    function sendMessage([message]){
+      console.log('client side emit message details:', [message])
+      const {messageItem, userItem, pictureItem} = ''
       container.setState(prevState => ({
-        roomMessages: [...prevState.roomMessages, {messageItem: message}]
+        roomMessages: [...prevState.roomMessages, {messageItem: message.chatMessage, userItem: message.user, pictureItem: message.proPic}]
       }))
+      console.log('roomMessages details: ', container.state.roomMessages)
     
     }
     
@@ -333,8 +336,10 @@ export default class ClassStream extends Component {
       remoteList: this.props.navigation.state.params.remoteList,
       user: this.props.navigation.state.params.user,
       chatMessage: '',
+      proPic: this.props.navigation.state.params.proPic,
       viewerNumber: '0',
       roomMessages: [],
+      
     }
 
   }
@@ -380,15 +385,23 @@ export default class ClassStream extends Component {
   }
 
   emitMessage = (event) => {
-    socket.emit('sendMessage', this.state.chatMessage);
+    socket.emit('sendMessage', [{chatMessage :this.state.chatMessage, user: this.state.user, proPic: this.state.proPic}]);
     this.setState({chatMessage: ''});
   }
+
 
   renderItem({item}) {
     return (
       <View style={styles.row}>
-        <Text style={styles.message}>{item.messageItem}</Text>
+        <Avatar 
+        rounded 
+        small
+        style = {styles.avatar} source = {{uri: item.pictureItem}} /> 
         <Text style={styles.message}>{item.userItem}</Text>
+        <View style = {styles.column}>
+        <Text style={styles.message}>{item.messageItem}</Text>
+        </View>
+        
       </View>
     );
   }
@@ -462,14 +475,28 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
   },
+
+  row: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'transparent',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+  },
+
+  column: {
+    flexDirection: 'column'
+
+  },
   message: {
     color: '#FFF',
+    left: 27,
   },
 
   chatBox: {
     flexDirection: 'row',
     borderWidth: 1,
-    width: 250,
+    width: 350,
     borderRadius: 10,
     height: 200,
     position: 'absolute',
@@ -587,6 +614,12 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     zIndex: 5
     
+  },
+
+  avatar: {
+    top: 15,
+    left: 8,
+    //alignItems: 'center',
   },
 
 

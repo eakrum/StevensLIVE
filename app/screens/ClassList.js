@@ -43,6 +43,7 @@ class ClassList extends Component {
       selfViewSrc: null,
       remoteList: {},
       user: '',
+      proPic: '',
       userUID: firebase.auth().currentUser.uid,
     }
 
@@ -60,7 +61,8 @@ class ClassList extends Component {
    
       this.setState({
 
-        user: _user
+        user: _user,
+        proPic: _proPic
        });
    
        
@@ -125,7 +127,8 @@ renderItem = ({item}) => {
           info: this.state.info, 
           selfViewSrc: this.state.selfViewSrc,
           status: this.state.status,
-          user: this.state.user
+          user: this.state.user,
+          proPic: this.state.proPic,
         });
       }
         
